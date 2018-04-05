@@ -44,9 +44,9 @@ app.get("/", (req, res) => {
 });
 
 // Create New Game ** temp route by Craig for making UI**
-// app.get("/game", (req, res) => {
-//   res.render("game");
-// })
+app.get("/game", (req, res) => {
+  res.render("game");
+})
 
 app.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);
