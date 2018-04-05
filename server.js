@@ -87,6 +87,11 @@ app.post("/game/:id/update", (req, res) => {
 app.put("/game/:id/update", (req, res) => {
     //IF HAS SUBMITTED
    if (gameMath[req.params.id].player = req.body.playerNumber){
+    //TRY TO END TURN
+
+    //IF HAS NOT SUBMITTED
+   }else{
+    //CHECK IF OTHER USER SUBMITTED YET
 
    }
 });
