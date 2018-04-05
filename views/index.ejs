@@ -1,17 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Home Page</title>
-
-    <link rel="stylesheet" href="/vendor/normalize-4.1.1.css" type="text/css" />
-    <link rel="stylesheet" href="/vendor/border-box.css" type="text/css" />
+    <title>Card.Games Lobby</title>
+    <!-- Normalize and css template from Skeleton css -->
+    <link rel="stylesheet" href="/vendor/normalize.css" type="text/css" />
+    <link rel="stylesheet" href="/vendor/skeleton.css" type="text/css" />
+    <!-- Our stylesheet populated from sass .scss file -->
     <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
-
+    <!-- Imports fonts: Great Vibes, Vollkorn, Cormorant Infant -->
+    <link href="https://fonts.googleapis.com/css?family=Cormorant+Infant|Great+Vibes|Vollkorn" rel="stylesheet">
     <script type="text/javascript" src="/vendor/jquery-3.0.0.js"></script>
     <script type="text/javascript" src="/scripts/app.js"></script>
+    <!-- Sets viewport width for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
 
+  <header>
+    <h1>Card.Games</h1>
+  </header>
   <body>
-    <h1>Hello World!</h1>
+    <div class="container">
+      <div class="row">
+
+      <div class="one-half column games">
+        <h2>Games</h2>
+          <ul>
+            <li>Goofspiel</li>
+          </ul>
+      </div>
+
+      <div class="one-half column leader-board">
+        <h2>Leader Board</h2>
+        <ul>
+          <li>Top Player</li>
+        </ul>
+      </div>
+
+      <div>
+        <h2>User Information</h2>
+      </div>
+
+      </div>
+    </div>
+
   </body>
+  <footer>
+    <p>Copyright info</p>
+  </footer>
 </html>
+

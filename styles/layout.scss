@@ -1,7 +1,44 @@
+$black-cards-color: #000000;
+$red-cards-color: #FF1600;
+$table-background-color: #658276;
+$dark-accent-color: #C5C6A2;
+$light-accent-color: #EDEEE0;
+
+
+* { outline: 1px dashed red; }
+
+header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 80px;
+  width: 100%;
+}
+
+footer {
+  position:fixed;
+  left:0px;
+  bottom:0px;
+  height:30px;
+  width:100%;
+}
+
 body {
-  background-color: #EEE;
+  padding-top: 80px;
+  background-color: $light-accent-color;
+  font-family: 'Vollkorn', serif;
 
   h1 {
-    color: #244751;
+    color: $black-cards-color;
+    font-family: 'Great Vibes', cursive;
+    text-align: center;
+
+  }
+
+  h2 {
+    color: $black-cards-color;
+    font-family: 'Great Vibes', cursive;
+    text-align: center;
   }
 }

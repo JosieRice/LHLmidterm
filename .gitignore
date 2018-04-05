@@ -3,3 +3,5 @@ public/styles
 .env
 *.log
 *.sqlite3
+public/vendor/normalize-4.1.1.css
+public/vendor/border-box.css

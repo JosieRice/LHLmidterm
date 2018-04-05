@@ -38,10 +38,15 @@ app.use(express.static("public"));
 // Mount all resource routes
 app.use("/api/users", usersRoutes(knex));
 
-// Home page
+// Login Page
 app.get("/", (req, res) => {
   res.render("index");
 });
+
+// Create New Game ** temp route by Craig for making UI**
+app.get("/game", (req, res) => {
+  res.render("game");
+})
 
 app.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);
