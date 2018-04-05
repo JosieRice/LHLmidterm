@@ -2,30 +2,48 @@
 <html lang="en">
   <head>
     <title>Now Playing Goofspiel on Card.Game</title>
-
-    <link rel="stylesheet" href="/vendor/normalize-4.1.1.css" type="text/css" />
-    <link rel="stylesheet" href="/vendor/border-box.css" type="text/css" />
+    <!-- Normalize and css template from Skeleton css -->
+    <link rel="stylesheet" href="/vendor/normalize.css" type="text/css" />
+    <link rel="stylesheet" href="/vendor/skeleton.css" type="text/css" />
+    <!-- Our stylesheet populated from sass .scss file -->
     <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
     <!-- Imports fonts: Great Vibes, Vollkorn, Cormorant Infant -->
     <link href="https://fonts.googleapis.com/css?family=Cormorant+Infant|Great+Vibes|Vollkorn" rel="stylesheet">
     <script type="text/javascript" src="/vendor/jquery-3.0.0.js"></script>
     <script type="text/javascript" src="/scripts/app.js"></script>
+    <!-- Sets viewport width for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
   </head>
-  <body>
-    <section>
-      <h2>Player 2 Hand</h2>
-    </section>
-    <section>
-      <h2>Player 1 Hand</h2>
-    </section>
-    <section>
-      <h2>Scores</h2>
-    </section>
-    <section>
-      <h2>Play Area</h2>
-    </section>
-    <section>
-      <h2>Notification</h2>
-    </section>
+  <body class="game-board">
+    <div class="container">
+      <div class="row">
+
+        <div class="twelve columns hand">
+          Opponents Hand
+        </div>
+
+          <div>
+
+            <div class="three columns play-area">
+              Scores
+            </div>
+
+            <div class="seven columns play-area">
+              Play Area
+            </div>
+
+            <div class="two columns play-area">
+              Notification
+            </div>
+
+          </div>
+
+        <div class="twelve columns hand">
+          User's Hand
+        </div>
+
+      </div>
+    </div>
   </body>
 </html>

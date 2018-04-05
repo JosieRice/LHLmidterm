@@ -25,7 +25,6 @@ footer {
 }
 
 body {
-  padding-top: 80px;
   background-color: $light-accent-color;
   font-family: 'Vollkorn', serif;
 
@@ -41,4 +40,22 @@ body {
     font-family: 'Great Vibes', cursive;
     text-align: center;
   }
+}
+
+body.lobby {
+  padding-top: 80px;
+}
+
+body.game-board {
+  padding-top: 2vh;
+  padding-bottom: 2vh;
+  height: 100vh;
+}
+
+.hand {
+  height: 18vh;
+}
+
+.play-area {
+  height: 60vh;
 }
