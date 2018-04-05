@@ -20,16 +20,7 @@ const usersRoutes = require("./routes/users");
 var game_waiting_goofspiel = 0; //= gameid
 const goofspiel_gamecount = 1 + knex('game_state').count('id');
 //Sample gamedatabase, destroyed on turn end.
-var gameMath = {
-  gameid: {
-    user1: {
-      cardPlayed
-    },
-    user2: {
-      cardPlayed
-    }
-  }
-};
+
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
 //         The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
@@ -52,7 +43,9 @@ app.use(express.static("public"));
 app.use("/api/users", usersRoutes(knex));
 
 
-
+app.get("/", (req, res) => {
+  res.render("index");
+});
 
 // Create New Game ** temp route by Craig for making UI**
 app.get("/game", (req, res) => {
@@ -80,13 +73,13 @@ app.get("/game/:id", (req, res) => {
   res.render("/game");
 });
 
-app.post("/game/:id/update", (req, res) => {
-    gameMath[req.params.id] = {
-    player: req.body.playerNumber = {
-      req.body.cardPlayed
-    }
-  }
-});
+// app.post("/game/:id/update", (req, res) => {
+//     gameMath[req.params.id] = {
+//     player: req.body.playerNumber = {
+//       req.body.cardPlayed;
+//     }
+//   }
+// });
 
 app.put("/game/:id/update", (req, res) => {
     //IF HAS SUBMITTED
