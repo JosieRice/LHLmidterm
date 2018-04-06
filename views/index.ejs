@@ -2,6 +2,9 @@
 <html lang="en">
   <head>
     <title>Card.Games Lobby</title>
+    <!-- Sets viewport width for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
     <!-- Normalize and css template from Skeleton css -->
     <link rel="stylesheet" href="/vendor/normalize.css" type="text/css" />
     <link rel="stylesheet" href="/vendor/skeleton.css" type="text/css" />
@@ -9,47 +12,48 @@
     <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
     <!-- Imports fonts: Great Vibes, Vollkorn, Cormorant Infant -->
     <link href="https://fonts.googleapis.com/css?family=Cormorant+Infant|Great+Vibes|Vollkorn" rel="stylesheet">
+    <!-- grabs our javascript code -->
     <script type="text/javascript" src="/vendor/jquery-3.0.0.js"></script>
     <script type="text/javascript" src="/scripts/app.js"></script>
-    <!-- Sets viewport width for responsive design -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
 
+  <!-- static fixed header for lobby -->
   <header>
-    <h1>Card.Games</h1>
+    <img class="logo" src="https://openclipart.org/download/170641/1339604228.svg" />
+    <h1 class="main-title">Card.Games</h1>
   </header>
-  <body>
+
+  <body class="lobby">
+    <!-- Skeleton container div for making a 960px max width container for the page to go in -->
     <div class="container">
+      <!-- Skeleton row div for responsive row spacing -->
       <div class="row">
 
-      <div class="one-half column games">
-        <h2>Games</h2>
-          <ul>
-            <li>Goofspiel
-              <form action="/join/goofspiel" method="GET" >
-                <button class="button-primary" >Play Me</button>
-              </form>
-            </li>
-          </ul>
-      </div>
-
-      <div class="one-half column leader-board">
-        <h2>Leader Board</h2>
-        <ul>
-          <li>Top Player</li>
-        </ul>
-      </div>
-
-      <div>
-        <h2>User Information</h2>
-      </div>
-
+        <!-- 50% width div for games list with buttons-->
+        <div class="one-half column games">
+          <h2>Games</h2>
+          <h3 class="u-pull-left">Goofspiel</h3>
+            <form action="/join/goofspiel" method="GET" >
+              <button class="button-primary u-pull-right" >Play Me</button>
+            </form>
+        </div>
+        <!-- 50% width div for leaderboard -->
+        <div class="one-half column leader-board" id="leader-board">
+          <h2>Leader Board</h2>
+        </div>
+        <!-- Clears skeleton floating pulls -->
+        <div class="u-cf"></div>
+        <!-- User info div, but to populated when clicked -->
+        <div>
+          <h2>User Information</h2>
+        </div>
       </div>
     </div>
-
   </body>
+
+  <!--static fixed footer with copyright -->
   <footer>
-    <p>Copyright info</p>
+    <p>Copyright info - Made By Brian Holden and Craig Rice</p>
   </footer>
 </html>
 
