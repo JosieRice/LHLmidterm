@@ -17,6 +17,16 @@ header {
   width: 100%;
 }
 
+.logo {
+    width: 80px;
+    height: 80px;
+    position: fixed;
+    top: 0;
+    right: 2vw;
+    left: 2vw;
+    z-index: 1;
+}
+
 footer {
   position:fixed;
   background-color: $dark-accent-color;
