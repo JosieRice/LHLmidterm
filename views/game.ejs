@@ -5,6 +5,8 @@
     <!-- Normalize and css template from Skeleton css -->
     <link rel="stylesheet" href="/vendor/normalize.css" type="text/css" />
     <link rel="stylesheet" href="/vendor/skeleton.css" type="text/css" />
+    <!-- CSS cards -->
+    <link rel="stylesheet" href="/vendor/selfthinker-CSS-Playing-Cards-7e0e0f2/cards.css" type="text/css" />
     <!-- Our stylesheet populated from sass .scss file -->
     <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
     <!-- Imports fonts: Great Vibes, Vollkorn, Cormorant Infant -->
@@ -16,32 +18,231 @@
     <meta charset="UTF-8">
   </head>
   <body class="game-board">
+    <!-- sets up main container for Skeleton Responsive layout -->
     <div class="container">
+      <!-- sets up row system for Skeleton Responsive layout -->
       <div class="row">
+        <!-- sets styling for opponents area and hand -->
+        <div class="twelve columns handbar">
+            <div class="playingCards faceImages centerHand">
 
-        <div class="twelve columns hand">
-          Opponents Hand
+                <ul class="hand">
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+                  <li>
+                    <div class="card back">*</div>
+                  </li>
+
+
+                </ul>
+
+
+              </div>
         </div>
 
           <div>
 
-            <div class="three columns play-area">
-              Scores
+            <div class="two columns play-area">
+              <h2>Game Score</h2>
+
             </div>
 
-            <div class="seven columns play-area">
-              Play Area
+            <!-- Skeleton setting play area width and css cards-->
+            <div class="eight columns play-area playingCards">
+              <ul class="deck stock">
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+                  <li><div class="card back">*</div></li>
+              </ul>
+
+              <div class="card upcard">
+                  <span class="rank"></span>
+                  <span class="suit"></span>
+              </div>
+
+              <div class="card player-downcard">
+                  <span class="rank"></span>
+                  <span class="suit"></span>
+              </div>
+
+              <div class="card opponent-downcard">
+                  <span class="rank"></span>
+                  <span class="suit"></span>
+              </div>
+
             </div>
 
             <div class="two columns play-area">
-              Notification
+              <h2>Turn status</h2>
             </div>
 
           </div>
 
-        <div class="twelve columns hand">
-          User's Hand
+          <div class="twelve columns handbar">
+
+              <div class="playingCards faceImages centerHand">
+
+                <ul class="hand">
+
+                  <li>
+                    <div class="card rank-a spades">
+                        <span class="rank">A</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-2 spades">
+                        <span class="rank">2</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-3 spades">
+                        <span class="rank">3</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-4 spades">
+                        <span class="rank">4</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-5 spades">
+                        <span class="rank">5</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-6 spades">
+                        <span class="rank">6</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-7 spades">
+                        <span class="rank">7</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-8 spades">
+                        <span class="rank">8</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-9 spades">
+                        <span class="rank">9</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-10 spades">
+                        <span class="rank">10</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-j spades">
+                        <span class="rank">J</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-q spades">
+                        <span class="rank">Q</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <div class="card rank-k spades">
+                        <span class="rank">K</span>
+                        <span class="suit">&spades;</span>
+                    </div>
+                  </li>
+
+
+                </ul>
+
+
+              </div>
+
+            </div>
+
+          </div>
         </div>
+
 
       </div>
     </div>

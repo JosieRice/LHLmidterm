@@ -2,6 +2,9 @@
 <html lang="en">
   <head>
     <title>Card.Games Lobby</title>
+    <!-- Sets viewport width for responsive design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
     <!-- Normalize and css template from Skeleton css -->
     <link rel="stylesheet" href="/vendor/normalize.css" type="text/css" />
     <link rel="stylesheet" href="/vendor/skeleton.css" type="text/css" />
@@ -9,33 +12,34 @@
     <link rel="stylesheet" href="/styles/layout.css" type="text/css" />
     <!-- Imports fonts: Great Vibes, Vollkorn, Cormorant Infant -->
     <link href="https://fonts.googleapis.com/css?family=Cormorant+Infant|Great+Vibes|Vollkorn" rel="stylesheet">
+    <!-- grabs our javascript code -->
     <script type="text/javascript" src="/vendor/jquery-3.0.0.js"></script>
     <script type="text/javascript" src="/scripts/app.js"></script>
-    <!-- Sets viewport width for responsive design -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="UTF-8">
   </head>
 
   <header>
     <h1>Card.Games</h1>
   </header>
+
   <body class="lobby">
+    <!-- Skeleton container div for making a 960px max width container for the page to go in -->
     <div class="container">
+      <!-- Skeleton row div for responsive row spacing -->
       <div class="row">
+        <!-- 50% width div for games list -->
+        <div class="one-half column games">
+          <h2>Games</h2>
+          <h3 class="u-pull-left">Goofspiel</h3>
+          <button class="button-primary u-pull-right">Play Me</button>
+        </div>
 
-      <div class="one-half column games">
-        <h2>Games</h2>
-          <ul>
-            <li>Goofspiel <button class="button-primary">Play Me</button></li>
-          </ul>
-      </div>
 
-      <div class="one-half column leader-board">
+      <div class="one-half column leader-board" id="leader-board">
         <h2>Leader Board</h2>
-        <ul>
-          <li>Top Player</li>
-        </ul>
       </div>
+
+      <!-- Clears skeleton floating pulls -->
+      <div class="u-cf"></div>
 
       <div>
         <h2>User Information</h2>
