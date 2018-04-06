@@ -1,4 +1,19 @@
 
+// exports.up = function(knex, Promise) {
+//   return Promise.all([
+//     knex.schema.table('game_state', function(table){
+//       table.string('player_1_hand');
+//       table.string('player_2_hand');
+//     })
+//   ])
+// };
+
+// exports.down = function(knex, Promise) {
+//    return knex.schema.dropTable('users');
+//    return knex.schema.dropTable('game_state');
+// };
+
+
 exports.up = function(knex, Promise) {
   return Promise.all([
     knex.schema.createTable('users', function(table){
@@ -10,9 +25,10 @@ exports.up = function(knex, Promise) {
 
     knex.schema.createTable('game_state', function(table){
       table.increments();
-      table.string('Players');
-      table.string('Player_hands');
-      table.string('Player_scores');
+      table.string('players');
+      table.string('player_1_hand');
+      table.string('player_2_hand');
+      table.string('player_scores');
       table.string('neutral_deck');
       table.string('status');
     })
@@ -20,6 +36,6 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-   return knex.schema.dropTable('users');
+   sreturn knex.schema.dropTable('users');
    return knex.schema.dropTable('game_state');
 };
