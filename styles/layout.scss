@@ -54,24 +54,34 @@ body.lobby {
 body.game-board {
   padding-top: 2vh;
   padding-bottom: 2vh;
-  height: 100vh;
+  height: 96vh;
   background-color: $card-table-green;
 }
 
 .handbar {
-  height: 18vh;
+  height: 14vh;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
 }
 
 .play-area {
-  height: 60vh;
+  height: 56vh;
+}
+
+.play-grid {
   display: grid;
-  grid-template-rows: repeat(3, 1fr);
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(3, 33.3%);
+  grid-template-columns: repeat(6, 16%);
+  grid-column-gap: 0;
+  grid-row-gap: 0;
+  grid-auto-rows: 10px;
 }
 
 .centerHand {
-  margin-left: 40%;
+  grid-column: 2;
 }
+
 .stock {
   grid-row: 2;
   grid-column: 5;

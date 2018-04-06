@@ -487,23 +487,24 @@
 .playingCards ul.hand li {
     bottom: 0;
 }
+/*spaced out hands in cards only up to 16 cards*/
 .playingCards ul.hand li:nth-child(1)  { left: 0; }
-.playingCards ul.hand li:nth-child(2)  { left: 1.1em; }
-.playingCards ul.hand li:nth-child(3)  { left: 2.2em; }
-.playingCards ul.hand li:nth-child(4)  { left: 3.3em; }
-.playingCards ul.hand li:nth-child(5)  { left: 4.4em; }
-.playingCards ul.hand li:nth-child(6)  { left: 5.5em; }
-.playingCards ul.hand li:nth-child(7)  { left: 6.6em; }
-.playingCards ul.hand li:nth-child(8)  { left: 7.7em; }
-.playingCards ul.hand li:nth-child(9)  { left: 8.8em; }
-.playingCards ul.hand li:nth-child(10) { left: 9.9em; }
-.playingCards ul.hand li:nth-child(11) { left: 11em; }
-.playingCards ul.hand li:nth-child(12) { left: 12.1em; }
-.playingCards ul.hand li:nth-child(13) { left: 13.2em; }
+.playingCards ul.hand li:nth-child(2)  { left: 2em; }
+.playingCards ul.hand li:nth-child(3)  { left: 4em; }
+.playingCards ul.hand li:nth-child(4)  { left: 6em; }
+.playingCards ul.hand li:nth-child(5)  { left: 8em; }
+.playingCards ul.hand li:nth-child(6)  { left: 10em; }
+.playingCards ul.hand li:nth-child(7)  { left: 12em; }
+.playingCards ul.hand li:nth-child(8)  { left: 14em; }
+.playingCards ul.hand li:nth-child(9)  { left: 16em; }
+.playingCards ul.hand li:nth-child(10) { left: 18em; }
+.playingCards ul.hand li:nth-child(11) { left: 20em; }
+.playingCards ul.hand li:nth-child(12) { left: 22em; }
+.playingCards ul.hand li:nth-child(13) { left: 24em; }
 
-.playingCards ul.hand li:nth-child(14) { left: 14.3em; }
-.playingCards ul.hand li:nth-child(15) { left: 15.4em; }
-.playingCards ul.hand li:nth-child(16) { left: 16.5em; }
+.playingCards ul.hand li:nth-child(14) { left: 26em; }
+.playingCards ul.hand li:nth-child(15) { left: 28em; }
+.playingCards ul.hand li:nth-child(16) { left: 30em; }
 .playingCards ul.hand li:nth-child(17) { left: 17.6em; }
 .playingCards ul.hand li:nth-child(18) { left: 18.7em; }
 .playingCards ul.hand li:nth-child(19) { left: 19.8em; }
