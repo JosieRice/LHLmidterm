@@ -2,56 +2,53 @@
 $(document).ready(function() {
 
   // provided code - puts user names on leader-board. modify to to actual leaderboard
-  $(() => {
+  // $(() => {
+  //   $.ajax({
+  //     method: "GET",
+  //     url: "/api/users"
+  //   }).done((users) => {
+  //     for(user of users) {
+  //       $("<div>").text(user.name).appendTo($("#leader-board"));
+  //       $("<div>").text(user.email).appendTo($("#leader-board"));
+  //       $("<div>").text(user.user_score_goofspiel).appendTo($("#leader-board"));
+  //     }
+  //   });;
+  // });
+
+  // finds selected card value in the DOM
+  function findSelectedCard() {
+    // includes value and suit
+    var cardText = $(this).text().trim();
+    // includes just value as string
+    var cardRank = cardText.substring(0, cardText.length - 1);
+    // Runs function to post value to server
+    postPlayedCard(cardRank);
+  }
+
+  // posts selected card to update game
+  function postPlayedCard(cardRank) {
+    // TESTING to check that correct string is passed
+    console.log(cardRank);
     $.ajax({
-      method: "GET",
-      url: "/api/users"
-    }).done((users) => {
-      for(user of users) {
-        $("<div>").text(user.name).appendTo($("#leader-board"));
-        $("<div>").text(user.email).appendTo($("#leader-board"));
-        $("<div>").text(user.user_score_goofspiel).appendTo($("#leader-board"));
-      }
-    });;
-  });
+      url: "/game/:id/update",
+      method: "POST",
+      data: cardRank,
+      complete: layCard()
+    });
+  }
 
-
-  function selectCard() {
-    console.log('hi');
+  function layCard(){
+    console.log('make a lay card function');
   }
 
 
   // houses all event handlers in a nice neat package
   function loadEventHanders() {
-    // handler for selecting a card to play
-    $( "#player-hand" ).on('click', selectCard);
+    // handler for entire players hand
+    $( "#player-hand .card" ).on('click', findSelectedCard);
   }
 
   // Turns on all event handlers
   loadEventHanders();
 
-
-  //  EXAMPLE EVENT HANDLERS AND SUBMIT BUTTONS
-
-  /*
-
-      // posts tweets
-      function postTweet () {
-          // tweet text packaged and ready to send
-          let serializedTweet = $('#content').serialize();
-          // Post to tweet json file
-          $.ajax({
-                url: "/tweets/",
-                method: "POST",
-                data: serializedTweet,
-                // resets tweets and reloads with fresh data
-                complete: function () {
-                              resetInput();
-                              loadTweets();
-                          }
-          });
-      }
-  */
-
-
-}
+});
