@@ -18,7 +18,12 @@ const knexLogger  = require('knex-logger');
 const usersRoutes = require("./routes/users");
 
 var game_waiting_goofspiel = 0; //= gameid
-const goofspiel_gamecount = 1 + knex('game_state').count('id');
+var history;
+var goofspiel_gamecount;
+knex('game_state').count('id').then(function(result){
+    history = Number(result[0].count);
+    goofspiel_gamecount = 1 + history;
+});
 //Sample gamedatabase, destroyed on turn end.
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
@@ -52,24 +57,48 @@ app.get("/game", (req, res) => {
   res.render("game");
 })
 
+
+var player_1 = 'Craig';
+
+
 // Home Page
 app.get("/join/goofspiel", (req, res) => {
-  if (game_waiting_goofspiel = 0){
-    knex('game_state').insert({id: goofspiel_gamecount, Players: [req.body.user], Players_hands: [1,2][1,2,3,4,5,6,7,8,9,10,11,12,13], Players_scores: [0, 0], neutral_deck: [1,2,3,4,5,6,7,8,9,10,11,12,13], status: 'active'})
+  if (game_waiting_goofspiel === 0){
+    knex('game_state').insert({
+      id: goofspiel_gamecount,
+      players:  JSON.stringify([player_1, "incoming two"]),
+      player_1_hand: JSON.stringify([1,2,3,4,5,6,7,8,9,10,11,12,13]),
+      player_2_hand: JSON.stringify([1,2,3,4,5,6,7,8,9,10,11,12,13]),
+      player_scores: JSON.stringify([0, 0]),
+      neutral_deck: JSON.stringify([1,2,3,4,5,6,7,8,9,10,11,12,13]),
+      status: 'active'}).then();
+
     game_waiting_goofspiel = goofspiel_gamecount;
     res.redirect("http://localhost:8080/game/"+goofspiel_gamecount);
   } else {
-    let players = knex('game_state').select('Players').from('game_state').where(id=goofspiel_gamecount);
-    knex('game_state').update({Players: [Players[0], req.body.user]})
+    knex.select('players').where({id: goofspiel_gamecount}).from('game_state')
+    .then(function(results) {
+      var player_1 = results[0].players;
+      var player_2 = 'Brian';
+      var array = JSON.parse(results[0].players);
+      knex('game_state')
+        .update({players: JSON.stringify([array[0], player_2])})
+        .where({id: goofspiel_gamecount})
+        .then(function(results){
+          goofspiel_gamecount++;
+        }).catch(function(err){
+          console.log(err)});
+    });
+
     res.redirect("http://localhost:8080/game/"+game_waiting_goofspiel);
     game_waiting_goofspiel = 0;
-  }
 
+  }
 });
 
 app.get("/game/:id", (req, res) => {
 
-  res.render("/game");
+  res.render("game");
 });
 
 // app.post("/game/:id/update", (req, res) => {
@@ -91,6 +120,7 @@ app.put("/game/:id/update", (req, res) => {
 
    }
 });
+
 
 
 
