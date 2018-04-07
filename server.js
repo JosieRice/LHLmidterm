@@ -113,29 +113,29 @@ function turnAction(game_id, user, card){
 // }
 
 //Builds data package for client
-function clientPackageBuilder(id, user, neutralCard){
-  let data = {
-    neutral : 0,
-    hand: [],
-    scores: []
-  };
-  console.log(id);
-  knex('game_state')
-  .select()
-  .where({id: id})
-  .then(function(results){
-    var players = JSON.parse(results[0].players);
-    if (players[0] = user){
-      data.hand = (JSON.parse(results[0].player_1_hand));
-    } else if (players[1] = user){
-      data.hand = (JSON.parse(results[0].player_2_hand));
-    }
-    data.scores = (JSON.parse(results[0].player_scores));
-    data.neutral = neutralCard;
-    console.log("data:", data);
-  });
+// function clientPackageBuilder(id, user, neutralCard){
+//   let data = {
+//     neutral : 0,
+//     hand: [],
+//     scores: []
+//   };
+//   console.log(id);
+//   knex('game_state')
+//   .select()
+//   .where({id: id})
+//   .then(function(results){
+//     var players = JSON.parse(results[0].players);
+//     if (players[0] = user){
+//       data.hand = (JSON.parse(results[0].player_1_hand));
+//     } else if (players[1] = user){
+//       data.hand = (JSON.parse(results[0].player_2_hand));
+//     }
+//     data.scores = (JSON.parse(results[0].player_scores));
+//     data.neutral = neutralCard;
+//     console.log("data:", data);
+//   });
 
-}
+// }
 
 //helper function to pull score from database
 function pullScore(game_id){
