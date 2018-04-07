@@ -192,7 +192,8 @@ app.get("/join/goofspiel", (req, res) => {
 });
 
 app.get("/game/:id", (req, res) => {
-  res.render("game", goofspiel_gamecount);
+
+  res.render("game", {goofspiel_gamecount});
 });
 
 
