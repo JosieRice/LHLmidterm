@@ -17,10 +17,10 @@ const knexLogger  = require('knex-logger');
 // Seperated Routes for each Resource
 const usersRoutes = require("./routes/users");
 
-const game_waiting_goofspiel = 0; //= gameid
+var game_waiting_goofspiel = 0; //= gameid
 var history;
 var goofspiel_gamecount;
-const turn = {};
+var turn = {};
 
 knex('game_state').count('id').then(function(result){
     history = Number(result[0].count);
@@ -103,7 +103,7 @@ function clientPackageBuilder(id, user, neutralCard){
     }
     data.scores = JSON.parse(results[0].player_scores);
     data.neutral = neutralCard;
-  }
+  });
 }
 
 function pullScore(game_id){
@@ -130,7 +130,7 @@ knex.select('neutral_deck').where({id: game_id}).from('game_state')
         function(result){
           return draw;
         })
-    }
+    });
 }
 
 
