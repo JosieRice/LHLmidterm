@@ -134,6 +134,7 @@ function clientPackageBuilder(id, user, neutralCard){
     data.neutral = neutralCard;
     return data;
   });
+  return data;
 }
 
 //helper function to pull score from database
