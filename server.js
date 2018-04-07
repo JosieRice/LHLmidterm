@@ -87,31 +87,49 @@ function cardToNumber(card){
 }
 
 function turnAction(game_id, user, card){
-  console.log("HERE1", game_id);
-  if (!turn[game_id].user_1){
-    console.log("HERE2");
-    turn[game_id].user_1 = user;
-    turn[game_id].user_1_card = card;
+  console.log(card);
+  if (Object.keys(turn).length === 0 && turn.constructor === Object) {
+    turn[game_id] = {
+        user_1 : user,
+        user_1_card: card,
+        user_2 : '',
+        user_2_card : 0
+    }
   } else {
-    console.log("HERE3");
     turn[game_id].user_2 = user;
     turn[game_id].user_2_card = card;
-  }
-  console.log("HERE4");
+
+    }
+  console.log("turn ", turn);
 }
+
+// turn = {
+//    game_id = {
+//      user_1 : 342,
+//      user_2 : 234,
+//      user_1_card: 2,
+//      user_2_card: 3,
+//      neutral_card: 3};
+//    }
+// }
+
 function clientPackageBuilder(id, user, neutralCard){
-  let data = {};
+  let data = {
+    neutral : 0,
+    hand: [],
+    scores: []
+  };
   knex('game_state')
   .select()
   .where({id: id})
   .then(function(results){
     var players = JSON.parse(results[0].players);
     if (players[0] = user){
-      data.hand = JSON.parse(results[0].player_1_hand);
+      data.hand.push(JSON.parse(results[0].player_1_hand));
     } else if (players[1] = user){
-      data.hand = JSON.parse(results[0].player_2_hand);
+      data.hand.push(JSON.parse(results[0].player_2_hand));
     }
-    data.scores = JSON.parse(results[0].player_scores);
+    data.scores.push(JSON.parse(results[0].player_scores));
     data.neutral = neutralCard;
   });
 }
@@ -181,13 +199,13 @@ app.get("/join/goofspiel", (req, res) => {
       knex('game_state')
         .update({players: JSON.stringify([array[0], player_2])})
         .where({id: goofspiel_gamecount})
-        .then()//function(results){
-        //   goofspiel_gamecount++;
-        // })
+        .then(function(results){
+           goofspiel_gamecount++;
+         })
     });
     res.redirect("/game/"+game_waiting_goofspiel);
     game_waiting_goofspiel = 0;
-    goofspiel_gamecount++;
+
   }
 });
 
@@ -199,8 +217,9 @@ app.get("/game/:id", (req, res) => {
 
 
 app.post("/game/:id/update", (req, res) => {
-    var game = req.params.id;
-    console.log("update", game);
+
+    console.log(req.body.rank);
+    console.log(Object.keys(req.body)[0]);
     turnAction(req.params.id, req.session.user, cardToNumber(req.body.rank));
 });
 
@@ -209,10 +228,10 @@ app.post("/game/:id/update", (req, res) => {
 
 app.get("/game/:id/waiting", (req, res) => {
   knex('game_state')
-    .select(players)
+    .select('players')
     .where({id: req.params.id})
     .then(function(results){
-      var users = JSON.parse(results);
+      var users = JSON.parse(results[0].players);
       if (users[1] != 'incoming two'){
         res.send('found');
       } else {
@@ -220,6 +239,10 @@ app.get("/game/:id/waiting", (req, res) => {
       }
     });
 });
+
+app.get("/game/:id/start", (req, res) => {
+  res.send(clientPackageBuilder(game_id, req.session.user, pullFromDeck()));
+})
 
 app.get("/game/:id/update", (req, res) => {
   //Turn ready to end

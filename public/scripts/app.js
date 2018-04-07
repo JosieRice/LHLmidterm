@@ -14,13 +14,15 @@ $(document).ready(function() {
   //     }
   //   });;
   // });
+  // Pulls game state from the server
+
 
   // finds selected card value in the DOM
   function findCardValue() {
     // includes value and suit
     var cardText = $(this).text().trim();
     // includes just value as string
-    var cardRank = cardText.substring(0, cardText.length - 1);
+    var cardRank = cardText.substring(0, cardText.length - 1).trim();
     // Runs function to post value to server
     postPlayedCard(cardRank);
   }
@@ -37,7 +39,7 @@ console.log(gameID);
     $.ajax({
       url: `/game/${gameID}/update`,
       method: "POST",
-      data: cardRank,
+      data: {rank:cardRank},
       // moves card in UI after it's sent
       complete: layCard(cardRank)
 // success goes here
@@ -82,7 +84,13 @@ console.log(gameID);
     $( "#player-hand .card" ).on('click', selectedCardDisappears);
   }
 
-
+(function (){
+      $.ajax({
+      url: `/game/${gameID}/start`,
+      method: "GET",
+      success: updateBoard()
+  })
+})();
 // 5 second repeating request game data from server
 setInterval(function() {
       $.ajax({
