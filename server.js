@@ -133,6 +133,7 @@ function clientPackageBuilder(id, user, neutralCard){
     data.scores.push(JSON.parse(results[0].player_scores));
     data.neutral = neutralCard;
   });
+  return data;
 }
 
 function pullScore(game_id){
@@ -244,7 +245,9 @@ app.get("/game/:id/waiting", (req, res) => {
 });
 
 app.get("/game/:id/start", (req, res) => {
-  res.send(clientPackageBuilder(req.params.id, req.session.user, pullFromDeck(req.params.id)));
+  var toSend = clientPackageBuilder(req.params.id, req.session.user, pullFromDeck(req.params.id))
+  console.log(toSend);
+  res.send(toSend);
 })
 
 app.get("/game/:id/update", (req, res) => {
