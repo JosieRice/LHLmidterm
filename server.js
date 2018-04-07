@@ -128,13 +128,13 @@ function clientPackageBuilder(id, user, neutralCard){
     if (players[0] = user){
       data.hand = (JSON.parse(results[0].player_1_hand));
     } else if (players[1] = user){
-      data.hand.push(JSON.parse(results[0].player_2_hand));
+      data.hand = (JSON.parse(results[0].player_2_hand));
     }
     data.scores = (JSON.parse(results[0].player_scores));
     data.neutral = neutralCard;
-    return data;
+    console.log("data:", data);
   });
-  return data;
+
 }
 
 //helper function to pull score from database
@@ -247,10 +247,26 @@ app.get("/game/:id/start", (req, res) => {
       knex.update({neutral_deck: JSON.stringify(deck)})
       .where({id: req.params.id})
       .from('game_state')
-      .then(function(resutls){
-      var toSend = clientPackageBuilder(req.params.id, req.session.user, draw)
-      console.log("Package:", toSend);
-      res.send(toSend);
+      .then(function(results){
+        let data = {
+        neutral : 0,
+        hand: [],
+        scores: []
+        };
+        knex('game_state')
+        .select()
+        .where({id: req.params.id})
+        .then(function(results){
+          var players = JSON.parse(results[0].players);
+          if (players[0] = req.session.user){
+          data.hand = (JSON.parse(results[0].player_1_hand));
+          } else if (players[1] = req.session.user){
+          data.hand = (JSON.parse(results[0].player_2_hand));
+          }
+          data.scores = (JSON.parse(results[0].player_scores));
+          data.neutral = draw;
+          res.send(data);
+        });
       });
     });
 })
