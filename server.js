@@ -119,6 +119,7 @@ function clientPackageBuilder(id, user, neutralCard){
     hand: [],
     scores: []
   };
+  console.log(id);
   knex('game_state')
   .select()
   .where({id: id})
@@ -186,20 +187,22 @@ app.get("/join/goofspiel", (req, res) => {
       neutral_deck: JSON.stringify([1,2,3,4,5,6,7,8,9,10,11,12,13]),
       status: 'active'}).then();
     turn[goofspiel_gamecount] = {};
-    req.session.game_id = goofspiel_gamecount;
     game_waiting_goofspiel = goofspiel_gamecount;
     res.redirect("http://localhost:8080/game/"+goofspiel_gamecount);
   } else {
     req.session.user = 'Brian';
     knex.select('players').where({id: goofspiel_gamecount}).from('game_state')
     .then(function(results) {
+
       var player_1 = results[0].players;
       var player_2 = req.session.user;
       var array = JSON.parse(results[0].players);
+
       knex('game_state')
         .update({players: JSON.stringify([array[0], player_2])})
         .where({id: goofspiel_gamecount})
         .then(function(results){
+
            goofspiel_gamecount++;
          })
     });
@@ -241,7 +244,7 @@ app.get("/game/:id/waiting", (req, res) => {
 });
 
 app.get("/game/:id/start", (req, res) => {
-  res.send(clientPackageBuilder(game_id, req.session.user, pullFromDeck()));
+  res.send(clientPackageBuilder(req.params.id, req.session.user, pullFromDeck(req.params.id)));
 })
 
 app.get("/game/:id/update", (req, res) => {
