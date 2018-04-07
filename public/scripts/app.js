@@ -30,7 +30,7 @@ $(document).ready(function() {
     // TESTING to check that correct string is passed
     // console.log(cardRank);
     $.ajax({
-      url: "/game/:id/update",
+      url: "/game/SNARF/update",
       method: "POST",
       data: cardRank,
       // moves card in UI after it's sent
