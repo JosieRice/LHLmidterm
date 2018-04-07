@@ -19,7 +19,8 @@
     <script type="text/javascript" src="/scripts/app.js"></script>
   </head>
 
-  <body class="game-board">
+  <!-- class is for styling, data tag is for linking to game state in database -->
+  <body class="game-board" id="game-board" data-gameid="<% goofspiel_gamecount %>">
     <!-- sets up main container for Skeleton Responsive layout -->
     <div class="container">
       <!-- sets up row system for Skeleton Responsive layout -->
@@ -102,25 +103,44 @@
           </ul>
 
           <!-- upturned card to bid on blank right now-->
-          <div class="card upcard">
-            <span class="rank"></span>
-            <span class="suit"></span>
+          <div class="upcard">
+
           </div>
 
           <!-- players chosen card for bidding -->
           <div class="player-downcard">
-<!--               <div class="card rank-a spades">
-                <span class="rank">A</span>
-                <span class="suit">&spades;</span>
-              </div> -->
+
           </div>
 
           <!-- opponents chosen card for bidding -->
-          <div class="card opponent-downcard">
-            <span class="rank"></span>
-            <span class="suit"></span>
+          <div class="opponent-downcard">
+
           </div>
+
+
+
+          <!-- after round is scored, upturned card to bid on blank right now-->
+          <div class="upcard-scored">
+
+          </div>
+
+          <!-- after round is scored, players chosen card for bidding -->
+          <div class="player-downcard-scored">
+
+          </div>
+
+          <!-- after round is scored, opponents chosen card for bidding -->
+          <div class="opponent-downcard-scored">
+
+          </div>
+
+
+
+
+
+
         </div>
+
         <!-- turn status -->
         <div class="two columns play-area">
           <h2>Turn status</h2>
