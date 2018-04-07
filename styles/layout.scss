@@ -112,6 +112,21 @@ body.game-board {
   grid-column: 4;
 }
 
+.upcard-scored {
+  grid-row: 2;
+  grid-column: 2;
+}
+
+.player-downcard-scored {
+  grid-row: 3;
+  grid-column: 2;
+}
+
+.opponent-downcard-scored {
+  grid-row: 1;
+  grid-column: 2;
+}
+
 .games {
   border-radius: 16px 16px 16px 16px;
   border: 2px solid #000000;
