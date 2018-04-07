@@ -147,6 +147,7 @@ knex.select('neutral_deck').where({id: game_id}).from('game_state')
 // Home Page
 app.get("/join/goofspiel", (req, res) => {
   if (game_waiting_goofspiel === 0){
+    req.session.user = 'Craig';
     var player_1 = req.session.user;
     knex('game_state').insert({
       id: goofspiel_gamecount,
@@ -160,6 +161,7 @@ app.get("/join/goofspiel", (req, res) => {
     game_waiting_goofspiel = goofspiel_gamecount;
     res.redirect("http://localhost:8080/game/"+goofspiel_gamecount);
   } else {
+    req.session.user = 'Brian';
     knex.select('players').where({id: goofspiel_gamecount}).from('game_state')
     .then(function(results) {
       var player_1 = results[0].players;
@@ -184,9 +186,11 @@ app.get("/game/:id", (req, res) => {
   res.render("game");
 });
 
- app.post("/game/:id/update", (req, res) => {
+
+
+app.post("/game/:id/update", (req, res) => {
      turnAction(req.params.id, req.session.user, cardToNumber(req.body.rank));
- });
+});
 
 app.get("/game/:id/waiting", (req, res) => {
   knex('game_state')
