@@ -66,7 +66,7 @@ app.get("/game", (req, res) => {
   res.render("game");
 })
 
-
+//converts string card value into intergers for comparition
 function cardToNumber(card){
   let result = 0;
   if (card === 'A'){
@@ -86,6 +86,7 @@ function cardToNumber(card){
   return result;
 }
 
+//populates server database of current turn
 function turnAction(game_id, user, card){
   console.log(card);
   if (Object.keys(turn).length === 0 && turn.constructor === Object) {
@@ -98,9 +99,7 @@ function turnAction(game_id, user, card){
   } else {
     turn[game_id].user_2 = user;
     turn[game_id].user_2_card = card;
-
     }
-  console.log("turn ", turn);
 }
 
 // turn = {
@@ -113,6 +112,7 @@ function turnAction(game_id, user, card){
 //    }
 // }
 
+//Builds data package for client
 function clientPackageBuilder(id, user, neutralCard){
   let data = {
     neutral : 0,
@@ -126,21 +126,24 @@ function clientPackageBuilder(id, user, neutralCard){
   .then(function(results){
     var players = JSON.parse(results[0].players);
     if (players[0] = user){
-      data.hand.push(JSON.parse(results[0].player_1_hand));
+      data.hand = (JSON.parse(results[0].player_1_hand));
     } else if (players[1] = user){
       data.hand.push(JSON.parse(results[0].player_2_hand));
     }
-    data.scores.push(JSON.parse(results[0].player_scores));
+    data.scores = (JSON.parse(results[0].player_scores));
     data.neutral = neutralCard;
+    return data;
   });
 }
 
+//helper function to pull score from database
 function pullScore(game_id){
   knex.select('player_scores').where({id: game_id}).from('game_state').then(function(results){
     return results;
   });
 }
 
+//helper function to set score in database
 function setScore(game_id, scores){
   knex('game_state')
   .update({player_scores: scores})
@@ -148,19 +151,23 @@ function setScore(game_id, scores){
   .then()
 }
 
-function pullFromDeck(game_id){
-knex.select('neutral_deck').where({id: game_id}).from('game_state')
-    .then(function(results) {
-      var deck = JSON.parse(results[0].neutral_deck);
-      var pick = Math.floor(Math.random() * deck.length);
-      var draw = deck[pick];
-      deck.splice(pick,1);
-      knex.update({neutral_deck: JSON.stringify(deck)}).where({id: game_id}).from('game_state').then(
-        function(result){
-          return draw;
-        })
-    });
-}
+// function pullFromDeck(game_id){
+//   var draw;
+//   var pick;
+//   var deck;
+// knex.select('neutral_deck').where({id: game_id}).from('game_state')
+//     .returning('neutral_deck').then(function(results) {
+//       deck = JSON.parse(results[0].neutral_deck);
+//       pick = Math.floor(Math.random() * deck.length);
+//       draw = deck[pick];
+//       console.log("Deck: ", deck);
+//       console.log("Pick: ", pick);
+//       console.log("Draw: ", draw);
+//       deck.splice(pick,1);
+//     }).then(function(results) {
+//       return draw;
+//     };
+// }
 
 
 
@@ -173,7 +180,7 @@ knex.select('neutral_deck').where({id: game_id}).from('game_state')
 //   user_1_checkin : boolean;
 //   user_2_checkin : boolean;
 
-// Home Page
+// populates new game_state in the database
 app.get("/join/goofspiel", (req, res) => {
   if (game_waiting_goofspiel === 0){
     req.session.user = 'Craig';
@@ -193,42 +200,27 @@ app.get("/join/goofspiel", (req, res) => {
     req.session.user = 'Brian';
     knex.select('players').where({id: goofspiel_gamecount}).from('game_state')
     .then(function(results) {
-
       var player_1 = results[0].players;
       var player_2 = req.session.user;
       var array = JSON.parse(results[0].players);
-
       knex('game_state')
         .update({players: JSON.stringify([array[0], player_2])})
         .where({id: goofspiel_gamecount})
         .then(function(results){
-
            goofspiel_gamecount++;
          })
     });
     res.redirect("/game/"+game_waiting_goofspiel);
     game_waiting_goofspiel = 0;
-
   }
 });
 
+//sends game match id to client
 app.get("/game/:id", (req, res) => {
-
   res.render("game", {goofspiel_gamecount});
 });
 
-
-
-app.post("/game/:id/update", (req, res) => {
-
-    console.log(req.body.rank);
-    console.log(Object.keys(req.body)[0]);
-    turnAction(req.params.id, req.session.user, cardToNumber(req.body.rank));
-});
-
-
-
-
+//checks if both players have joined the game
 app.get("/game/:id/waiting", (req, res) => {
   knex('game_state')
     .select('players')
@@ -243,10 +235,26 @@ app.get("/game/:id/waiting", (req, res) => {
     });
 });
 
+//sends initial game setup data
 app.get("/game/:id/start", (req, res) => {
-  res.send(clientPackageBuilder(req.params.id, req.session.user, pullFromDeck(req.params.id)));
+  knex.select('neutral_deck').where({id: req.params.id}).from('game_state')
+    .then(function(results) {
+      var deck = JSON.parse(results[0].neutral_deck);
+      var pick = Math.floor(Math.random() * deck.length);
+      var draw = deck[pick];
+      deck.splice(pick,1);
+      knex.update({neutral_deck: JSON.stringify(deck)})
+      .where({id: req.params.id})
+      .from('game_state')
+      .then(function(resutls){
+      var toSend = clientPackageBuilder(req.params.id, req.session.user, draw)
+      console.log("Package:", toSend);
+      res.send(toSend);
+      });
+    });
 })
 
+//handles turn rollover
 app.get("/game/:id/update", (req, res) => {
   //Turn ready to end
   var game_id = req.params.id
@@ -295,14 +303,12 @@ app.get("/game/:id/update", (req, res) => {
     res.send('waiting');
   }
 });
-   // turn[game_id] =
-//   user_1 : 342,
-//   user_2 : 234,
-//   user_1_card: 2,
-//   user_2_card: 3,
-//   neutral_card: 3};
-//   user_1_checkin : boolean;
-//   user_2_checkin : boolean;
+
+// Client sends card to be played
+app.post("/game/:id/update", (req, res) => {
+    turnAction(req.params.id, req.session.user, cardToNumber(req.body.rank));
+});
+
 app.listen(PORT, () => {
   console.log("Example app listening on port " + PORT);
 });
