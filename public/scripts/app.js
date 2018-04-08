@@ -5,6 +5,9 @@ $(document).ready(function() {
   var gameIDElement = document.getElementById('game-board');
   var gameID = gameIDElement.dataset.gameid;
 
+  // var userIDElement = document.getElementById('main-container');
+  // var userID = gameIDElement.dataset.userid;
+
   // finds selected card value in the DOM
   function findCardValue() {
     // includes value and suit
@@ -30,16 +33,14 @@ $(document).ready(function() {
 
   // puts card choice on play area
   function layCard(cardRank) {
-    // lower case for class rank- to match css cards
-    lowerCaseCardRank = cardRank.toLowerCase();
     $('.player-downcard').empty();
-    $( `  <div class="card rank-${lowerCaseCardRank} spades">
+    $( `  <div class="card rank-${cardRank} spades">
             <span class="rank">${cardRank}</span>
             <span class="suit">&spades;</span>
           </div>` ).appendTo( ".player-downcard" );
   }
 
-  // removes card from hand
+  // removes card from hand that was selected
   function selectedCardDisappears() {
     $(this).parent().empty();
   }
@@ -48,55 +49,37 @@ $(document).ready(function() {
   function moveToScoredArea(owner, cardRank) {
     // code to populate a card in the scored area
     $('.player-downcard').empty();
-    $( `  <div class="card rank-${lowerCaseCardRank} spades">
+    $( `  <div class="card rank-${cardRank} spades">
             <span class="rank">${cardRank}</span>
             <span class="suit">&spades;</span>
           </div>` ).appendTo( ".player-downcard" );
-
   }
-
-  // houses all event handlers in a nice neat package
-  function loadEventHanders() {
-    // handler for hand to POST card info to server
-    $( "#player-hand .card" ).on('click', findCardValue);
-    // handler to remove hand cards
-    $( "#player-hand .card" ).on('click', selectedCardDisappears);
-  }
-
-  // populates the initial game board
-  (function startGameDataPull (){
-    $.ajax({
-    url: `/game/${gameID}/start`,
-    method: "GET",
-    success: (data) => { updateBoard(data); }
-    });
-  })();
-
-  // // 5 second repeating request game data from server
-  // setInterval(function() {
-  //       $.ajax({
-  //       url: `/game/${gameID}/waiting`,
-  //       method: "GET",
-  //       success: updateBoard()
-  //     });
-  // }, 5000);
 
   // runs the function to parse card data, which runs hand and board update functions
   function updateBoard(data){
-    // runs function to parse random neutral card
+    // clears player hand once
+    clearPlayerHand();
+    // loops over hand array from database to populate both hands
+    for (var i = 0; i < data.hand.length; i++) {
+      // updates players hand with correct cards
+      updatePlayerHand(parseCardValues(data.hand[i]));
+      // updates opponents hand with correct AMOUNT of cards
+      updateOpponentHand();
+      // updates neutral deck size
+      updateNeutralDeck();
+    }
+    // flips over a neutral card
     flipNeutralCard(parseCardValues(data.neutral));
-    // console.log('PLAYER HAND ', data.hand)
-    // runs function to parse cards remaining in player hand
-    // parseCardValues(data.hand);
+    // reloads event handers on fresh player hand
+    loadEventHanders();
   }
 
-  // converts card data and runs functions to update board.
+  // returns cardRank parsed into capital letters for face cards and Ace.
   function parseCardValues(cardRank) {
-    console.log('cardNumber ', cardRank);
     if (cardRank === 1) {
       cardRank = "A";
     }
-    if (cardRank === 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9) {
+    if (cardRank === 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10) {
       cardRank = cardRank;
     }
     if (cardRank === 11) {
@@ -109,43 +92,68 @@ $(document).ready(function() {
       cardRank = "K";
     }
     return cardRank;
-    console.log("cardRANK ", cardRank)
   }
 
+  // flips over random neutral card in center for players to bid on
   function flipNeutralCard (cardRank) {
-    console.log('hi')
-    if (cardRank === "A" || "J" || "Q" || "K") {
-      var lowerCaseCardRank = cardRank.toLowerCase();
-    }
-    if (cardRank === 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10) {
-      var lowerCaseCardRank = cardRank;
-    }
-
-
     $('.upcard').empty();
-    $( `  <div class="card rank-${lowerCaseCardRank} spades">
+      $( `  <div class="card rank-${cardRank} spades">
+        <span class="rank">${cardRank}</span>
+        <span class="suit">&spades;</span>
+      </div>` ).appendTo( ".upcard" );
+  }
+
+  // clears players hand, to be used before refreshing players hand
+  function clearPlayerHand() {
+    $('#player-hand').empty();
+  }
+
+  // updates players hand from database with cards left
+  function updatePlayerHand(cardRank) {
+    $( `  <li><div class="card rank-${cardRank} spades">
       <span class="rank">${cardRank}</span>
       <span class="suit">&spades;</span>
-    </div>` ).appendTo( ".upcard" );
+    </div></li>` ).appendTo( "#player-hand" );
   }
 
-  function updateHands () {
-
+  // updates neutral deck size
+  function updateNeutralDeck() {
+    $( `<li><div class="card back">*</div></li>` ).appendTo( ".stock" );
   }
 
-  // // flips neutral card to be bid on
-  // function flipNeutralCardNumber (cardRank) {
-  //   if (cardRank === 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9) {
-  //    $( `  <div class="card rank-${cardRank} spades">
-  //       <span class="rank">${cardRank}</span>
-  //       <span class="suit">&spades;</span>
-  //     </div>` ).appendTo( ".upcard" );
-  //   }
-  // }
+  // updates opponents hand with correct amount of cards
+  function updateOpponentHand() {
+      $(`<li><div class="card back">*</div></li>`).appendTo( ".opponent-hand" );
+  }
 
+  // houses all event handlers in a nice neat package
+  function loadEventHanders() {
+    // handler for hand to POST card info to server
+    $( "#player-hand .card" ).on('click', findCardValue);
+    // handler to remove hand cards
+    $( "#player-hand .card" ).on('click', selectedCardDisappears);
+  }
+
+  // IIFE receives initial game state data and runs function to populate the game board
+  (function startGameDataPull (){
+    $.ajax({
+    url: `/game/${gameID}/start`,
+    method: "GET",
+    success: (data) => { updateBoard(data); }
+    });
+  })();
 
   // Turns on all event handlers
   loadEventHanders();
+
+  // // 5 second repeating request game data from server
+  // setInterval(function() {
+  //       $.ajax({
+  //       url: `/game/${gameID}/waiting`,
+  //       method: "GET",
+  //       success: updateBoard()
+  //     });
+  // }, 5000);
 
 });
 
