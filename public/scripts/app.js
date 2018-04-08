@@ -8,19 +8,26 @@ $(document).ready(function() {
   // var userIDElement = document.getElementById('main-container');
   // var userID = gameIDElement.dataset.userid;
 
-  // finds selected card value in the DOM
-  function findCardValue() {
+  // finds selected card value in the DOM and
+  // reduces it to A, J, Q, K, or a number
+  function findCardValue(cb) {
     // includes value and suit
     var cardText = $(this).text().trim();
     // includes just value as string
     var cardRank = cardText.substring(0, cardText.length - 1).trim();
     // Runs function to post value to server
     postPlayedCard(cardRank);
+    eventHandlersOff();
+  }
+
+  // turns off event handlers
+  function eventHandlersOff() {
+    $( "#player-hand .card" ).off('click', findCardValue);
+    $( "#player-hand .card" ).off('click', selectedCardDisappears);
   }
 
   // posts selected card to update game
   function postPlayedCard(cardRank) {
-    // TESTING to check that correct string is passed
     $.ajax({
       url: `/game/${gameID}/update`,
       method: "POST",
@@ -45,7 +52,7 @@ $(document).ready(function() {
     $(this).parent().empty();
   }
 
-  // moves cards to scored area.
+  // moves cards to scored area - still needs to be changes to take two arguments
   function moveToScoredArea(owner, cardRank) {
     // code to populate a card in the scored area
     $('.player-downcard').empty();
@@ -70,6 +77,7 @@ $(document).ready(function() {
     }
     // flips over a neutral card
     flipNeutralCard(parseCardValues(data.neutral));
+    // removeOneNeutralDeckCard();
     // reloads event handers on fresh player hand
     loadEventHanders();
   }
@@ -106,6 +114,12 @@ $(document).ready(function() {
   // clears players hand, to be used before refreshing players hand
   function clearPlayerHand() {
     $('#player-hand').empty();
+  }
+
+  // remove one card from neutral deck - NOT WORKING
+  function removeOneNeutralDeckCard() {
+    // $('.stock').slice(1);
+    // $( ".stock.child" ).slice( 0, 1 ).wrapInner( "<li></li>" );
   }
 
   // updates players hand from database with cards left
@@ -157,7 +171,7 @@ $(document).ready(function() {
 
 });
 
-
+    // $( "#player-hand" ).off( "click", "**" );
 
   // provided code - puts user names on leader-board. modify to to actual leaderboard
   // $(() => {
