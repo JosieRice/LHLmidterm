@@ -268,6 +268,81 @@ $(document).ready(function() {
   // Turns on all event handlers
   loadEventHanders();
 
+
+// sets an interval ID so that we can stop the repeated database queries
+var nIntervId;
+
+// turns turn status check on timer
+function queryDatabase() {
+  nIntervId = setInterval(turnStatusCheck, 5000);
+}
+
+// stops turn status check
+function stopQueryDatabase() {
+  clearInterval(nIntervId);
+}
+
+function turnStatusCheck() {
+    //check if opponent present, if present sets opponent toggle to found,
+    //and skips route
+      if (opponentToggle === "not found"){
+        $.ajax({
+        url: `/game/${gameID}/waiting/${userID}`,
+        method: "GET",
+        success: (data) => { opponentToggle = data; }
+        });
+      }
+      //checks if opponent has played card and user has not
+      //  if only opponent has played, turn toggle will set to "waiting"
+      //  if both players have played their card, database will return object
+      //  instead of waiting string.
+      //  route checks input and does proper actions based on input type
+      else if (turnToggle === "waiting on both" || turnToggle === "waiting on you"){
+        $.ajax({
+        url: `/game/${gameID}/update/${userID}`,
+        method: "GET",
+        success: (data) => { console.log("IF WAITING ON BOTH OR WAITING ON YOU");
+          if (data === "waiting on you"){
+            console.log("IF JUST WAITING ON YOU");
+            //set waiting visual queue
+          } else if (data === "waiting on both"){
+            console.log("IF WAITING ON JUST BOTH");
+          } else if (data !== "waiting on you" || data !== "waiting on both"){
+            // updateBoard(data);
+            console.log("IF NOT WAITING FOR EITHER AND THE TURN IS READY TO", data);
+            updateBoard(data);
+            turnToggle = "waiting on both";
+          }
+        }
+        });
+      }
+
+}
+
+
+
+
+queryDatabase();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  });
+
   // // 5 second repeating request game data from server
   // setInterval(function() {
   //   //check if opponent present, if present sets opponent toggle to found,
@@ -305,7 +380,7 @@ $(document).ready(function() {
   //     }
   // }, 5000);
 
-});
+
 
     // $( "#player-hand" ).off( "click", "**" );
 
