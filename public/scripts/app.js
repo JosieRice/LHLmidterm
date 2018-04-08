@@ -10,6 +10,8 @@ $(document).ready(function() {
   // var userIDElement = document.getElementById('main-container');
   // var userID = gameIDElement.dataset.userid;
 
+  // var lastNeutralCard;
+
   // finds selected card value in the DOM and
   // reduces it to A, J, Q, K, or a number
   function findCardValue() {
@@ -66,10 +68,26 @@ $(document).ready(function() {
 
   // runs the function to parse card data, which runs hand and board update functions
   function updateBoard(data){
-    // clears player hand once
+    // clears player hand once so it can be repopulated from the database
     clearPlayerHand();
+    // clears opponents hand so it can be repopulated from the database
+    clearOpponentsHand();
+    // clears neutral deck 'stock' so it can be repopulated from the database
+    clearNeutralDeck();
+
+    // populates scores
+
+
+    console.log('data ', data);
+    console.log('')
+
+
     // loops over hand array from database to populate both hands
     for (var i = 0; i < data.hand.length; i++) {
+      // if the array value is zero (played card), skip that array iteration
+      if (data.hand[i] === 0) {
+        continue;
+      }
       // updates players hand with correct cards
       updatePlayerHand(parseCardValues(data.hand[i]));
       // updates opponents hand with correct AMOUNT of cards
@@ -83,6 +101,36 @@ $(document).ready(function() {
     // reloads event handers on fresh player hand
     loadEventHanders();
   }
+
+
+  // moves played cards over to score
+  function movePlayedCardsToScored() {
+
+  }
+
+  // move neutral upcard to scored
+  function moveUpcardToScored(cardRank) {
+    $('.upcard-scored').empty();
+      $( `  <div class="card rank-${cardRank} diams">
+        <span class="rank">${cardRank}</span>
+        <span class="suit">&diams;</span>
+      </div>` ).appendTo( ".upcard-scored" );
+  }
+
+
+          //   <!-- after round is scored, upturned card to bid on blank right now-->
+          // <div class="upcard-scored">
+          // </div>
+
+          // <!-- after round is scored, players chosen card for bidding -->
+          // <div class="player-downcard-scored">
+          // </div>
+
+          // <!-- after round is scored, opponents chosen card for bidding -->
+          // <div class="opponent-downcard-scored">
+          // </div>
+
+
 
   // returns cardRank parsed into capital letters for face cards and Ace.
   function parseCardValues(cardRank) {
@@ -107,6 +155,7 @@ $(document).ready(function() {
   // flips over random neutral card in center for players to bid on
   // hard coded to diamonds
   function flipNeutralCard (cardRank) {
+    lastNeutralCard = cardRank;
     $('.upcard').empty();
       $( `  <div class="card rank-${cardRank} diams">
         <span class="rank">${cardRank}</span>
@@ -117,12 +166,6 @@ $(document).ready(function() {
   // clears players hand, to be used before refreshing players hand
   function clearPlayerHand() {
     $('#player-hand').empty();
-  }
-
-  // remove one card from neutral deck - NOT WORKING
-  function removeOneNeutralDeckCard() {
-    // $('.stock').slice(1);
-    // $( ".stock.child" ).slice( 0, 1 ).wrapInner( "<li></li>" );
   }
 
   // updates players hand from database with cards left
@@ -138,9 +181,19 @@ $(document).ready(function() {
     $( `<li><div class="card back">*</div></li>` ).appendTo( ".stock" );
   }
 
+  // clears neutral deck
+  function clearNeutralDeck() {
+    $( '.stock' ).empty();
+  }
+
+  // clears opponents hand, to be used before refreshing players hand
+  function clearOpponentsHand() {
+    $('.opponent-hand').empty();
+  }
+
   // updates opponents hand with correct amount of cards
   function updateOpponentHand() {
-      $(`<li><div class="card back">*</div></li>`).appendTo( ".opponent-hand" );
+    $(`<li><div class="card back">*</div></li>`).appendTo( ".opponent-hand" );
   }
 
   // houses all event handlers in a nice neat package
@@ -171,7 +224,7 @@ $(document).ready(function() {
         $.ajax({
         url: `/game/${gameID}/waiting/${userID}`,
         method: "GET",
-        success: (data) => { opponentToggle = data; console.log(data); }
+        success: (data) => { opponentToggle = data; }
         });
       }
       //checks if opponent has played card and user has not
@@ -183,15 +236,16 @@ $(document).ready(function() {
         $.ajax({
         url: `/game/${gameID}/update/${userID}`,
         method: "GET",
-        success: (data) => { console.log("first:", data);
+        success: (data) => { console.log("IF WAITING ON BOTH OR WAITING ON YOU");
           if (data === "waiting on you"){
-            console.log("second:");
+            console.log("IF JUST WAITING ON YOU");
             //set waiting visual queue
           } else if (data === "waiting on both"){
-            console.log("third:");
+            console.log("IF WAITING ON JUST BOTH");
           } else if (data !== "waiting on you" || data !== "waiting on both"){
             // updateBoard(data);
-            console.log("fourth:");
+            console.log("IF NOT WAITING FOR EITHER AND THE TURN IS READY TO", data);
+            updateBoard(data);
             turnToggle = "waiting on both";
           }
         }
