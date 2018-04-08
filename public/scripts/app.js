@@ -81,11 +81,68 @@ $(document).ready(function() {
   //     });
   // }, 5000);
 
-  // to be completed
+  // runs the function to parse card data, which runs hand and board update functions
   function updateBoard(data){
-    console.log('Hey handsome', data);
-    // processing the game state data into cards, locations, and scores
+    // runs function to parse random neutral card
+    flipNeutralCard(parseCardValues(data.neutral));
+    // console.log('PLAYER HAND ', data.hand)
+    // runs function to parse cards remaining in player hand
+    // parseCardValues(data.hand);
   }
+
+  // converts card data and runs functions to update board.
+  function parseCardValues(cardRank) {
+    console.log('cardNumber ', cardRank);
+    if (cardRank === 1) {
+      cardRank = "A";
+    }
+    if (cardRank === 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9) {
+      cardRank = cardRank;
+    }
+    if (cardRank === 11) {
+      cardRank = "J";
+    }
+    if (cardRank === 12) {
+      cardRank = "Q";
+    }
+    if (cardRank === 13) {
+      cardRank = "K";
+    }
+    return cardRank;
+    console.log("cardRANK ", cardRank)
+  }
+
+  function flipNeutralCard (cardRank) {
+    console.log('hi')
+    if (cardRank === "A" || "J" || "Q" || "K") {
+      var lowerCaseCardRank = cardRank.toLowerCase();
+    }
+    if (cardRank === 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9 || 10) {
+      var lowerCaseCardRank = cardRank;
+    }
+
+
+    $('.upcard').empty();
+    $( `  <div class="card rank-${lowerCaseCardRank} spades">
+      <span class="rank">${cardRank}</span>
+      <span class="suit">&spades;</span>
+    </div>` ).appendTo( ".upcard" );
+  }
+
+  function updateHands () {
+
+  }
+
+  // // flips neutral card to be bid on
+  // function flipNeutralCardNumber (cardRank) {
+  //   if (cardRank === 2 || 3 || 4 || 5 || 6 || 7 || 8 || 9) {
+  //    $( `  <div class="card rank-${cardRank} spades">
+  //       <span class="rank">${cardRank}</span>
+  //       <span class="suit">&spades;</span>
+  //     </div>` ).appendTo( ".upcard" );
+  //   }
+  // }
+
 
   // Turns on all event handlers
   loadEventHanders();
