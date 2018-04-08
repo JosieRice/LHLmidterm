@@ -4,7 +4,9 @@ $(document).ready(function() {
   // sets a variable to the game table as stored in the data tag on the body
   var gameIDElement = document.getElementById('game-board');
   var gameID = gameIDElement.dataset.gameid;
-
+  var userID = gameIDElement.dataset.userid;
+  var opponentToggle = "not found";
+  var turnToggle = "waiting on both";
   // var userIDElement = document.getElementById('main-container');
   // var userID = gameIDElement.dataset.userid;
 
@@ -22,7 +24,7 @@ $(document).ready(function() {
   function postPlayedCard(cardRank) {
     // TESTING to check that correct string is passed
     $.ajax({
-      url: `/game/${gameID}/update`,
+      url: `/game/${gameID}/update/${userID}`,
       method: "POST",
       data: {rank:cardRank},
       // moves card in UI after it's sent
@@ -137,7 +139,7 @@ $(document).ready(function() {
   // IIFE receives initial game state data and runs function to populate the game board
   (function startGameDataPull (){
     $.ajax({
-    url: `/game/${gameID}/start`,
+    url: `/game/${gameID}/start/${userID}`,
     method: "GET",
     success: (data) => { updateBoard(data); }
     });
@@ -146,14 +148,41 @@ $(document).ready(function() {
   // Turns on all event handlers
   loadEventHanders();
 
-  // // 5 second repeating request game data from server
-  // setInterval(function() {
-  //       $.ajax({
-  //       url: `/game/${gameID}/waiting`,
-  //       method: "GET",
-  //       success: updateBoard()
-  //     });
-  // }, 5000);
+  // 5 second repeating request game data from server
+  setInterval(function() {
+    //check if opponent present, if present sets opponent toggle to found,
+    //and skips route
+      if (opponentToggle === "not found"){
+        $.ajax({
+        url: `/game/${gameID}/waiting/${userID}`,
+        method: "GET",
+        success: (data) => { opponentToggle = data; console.log(data); }
+        });
+      }
+      //checks if opponent has played card and user has not
+      //  if only opponent has played, turn toggle will set to "waiting"
+      //  if both players have played their card, database will return object
+      //  instead of waiting string.
+      //  route checks input and does proper actions based on input type
+      else if (turnToggle === "waiting on both" || turnToggle === "waiting on you"){
+        $.ajax({
+        url: `/game/${gameID}/update/${userID}`,
+        method: "GET",
+        success: (data) => { console.log("first:", data);
+          if (data === "waiting on you"){
+            console.log("second:");
+            //set waiting visual queue
+          } else if (data === "waiting on both"){
+            console.log("third:");
+          } else if (data !== "waiting on you" || data !== "waiting on both"){
+            // updateBoard(data);
+            console.log("fourth:");
+            turnToggle = "waiting on both";
+          }
+        }
+        });
+      }
+  }, 5000);
 
 });
 
