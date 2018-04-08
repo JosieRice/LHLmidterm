@@ -32,7 +32,6 @@ knex('game_state').count('id').then(function(result){
     history = Number(result[0].count);
     goofspiel_gamecount = 1 + history;
 });
-//Sample gamedatabase, destroyed on turn end.
 
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
@@ -88,104 +87,39 @@ function cardToNumber(card){
 
 //populates server database of current turn
 function turnAction(game_id, user, card){
-  console.log(card);
-  if (Object.keys(turn).length === 0 && turn.constructor === Object) {
-    turn[game_id] = {
-        user_1 : user,
-        user_1_card: card,
-        user_2 : '',
-        user_2_card : 0
-    }
+
+  if (turn[game_id].user_1 === user) {
+    turn[game_id].user_1_card = card;
+    turn[game_id].user_1_submit = "yes";
+    knex.select('player_1_hand').where({id: game_id}).from('game_state')
+    .then(function(results) {
+      var hand = JSON.parse(results[0].player_1_hand);
+      hand[card-1] = 0;
+      knex.update({player_1_hand: JSON.stringify(hand)})
+      .where({id: game_id})
+      .from('game_state')
+      .then();
+    });
+
   } else {
-    turn[game_id].user_2 = user;
     turn[game_id].user_2_card = card;
-    }
+    turn[game_id].user_2_submit = "yes";
+    knex.select('player_2_hand').where({id: game_id}).from('game_state')
+    .then(function(results) {
+      var hand = JSON.parse(results[0].player_2_hand);
+      hand[card-1] = 0;
+      knex.update({player_2_hand: JSON.stringify(hand)})
+      .where({id: game_id})
+      .from('game_state')
+      .then();
+    });
+  }
 }
-
-// turn = {
-//    game_id = {
-//      user_1 : 342,
-//      user_2 : 234,
-//      user_1_card: 2,
-//      user_2_card: 3,
-//      neutral_card: 3};
-//    }
-// }
-
-//Builds data package for client
-// function clientPackageBuilder(id, user, neutralCard){
-//   let data = {
-//     neutral : 0,
-//     hand: [],
-//     scores: []
-//   };
-//   console.log(id);
-//   knex('game_state')
-//   .select()
-//   .where({id: id})
-//   .then(function(results){
-//     var players = JSON.parse(results[0].players);
-//     if (players[0] = user){
-//       data.hand = (JSON.parse(results[0].player_1_hand));
-//     } else if (players[1] = user){
-//       data.hand = (JSON.parse(results[0].player_2_hand));
-//     }
-//     data.scores = (JSON.parse(results[0].player_scores));
-//     data.neutral = neutralCard;
-//     console.log("data:", data);
-//   });
-
-// }
-
-//helper function to pull score from database
-function pullScore(game_id){
-  knex.select('player_scores').where({id: game_id}).from('game_state').then(function(results){
-    return results;
-  });
-}
-
-//helper function to set score in database
-function setScore(game_id, scores){
-  knex('game_state')
-  .update({player_scores: scores})
-  .where({id: game_id})
-  .then()
-}
-
-// function pullFromDeck(game_id){
-//   var draw;
-//   var pick;
-//   var deck;
-// knex.select('neutral_deck').where({id: game_id}).from('game_state')
-//     .returning('neutral_deck').then(function(results) {
-//       deck = JSON.parse(results[0].neutral_deck);
-//       pick = Math.floor(Math.random() * deck.length);
-//       draw = deck[pick];
-//       console.log("Deck: ", deck);
-//       console.log("Pick: ", pick);
-//       console.log("Draw: ", draw);
-//       deck.splice(pick,1);
-//     }).then(function(results) {
-//       return draw;
-//     };
-// }
-
-
-
-// turn[game_id] =
-//   user_1 : 342,
-//   user_2 : 234,
-//   user_1_card: 2,
-//   user_2_card: 3,
-//   neutral_card: 3};
-//   user_1_checkin : boolean;
-//   user_2_checkin : boolean;
 
 // populates new game_state in the database
 app.get("/join/goofspiel", (req, res) => {
   if (game_waiting_goofspiel === 0){
-    req.session.user = 'Craig';
-    var player_1 = req.session.user;
+    var player_1 = 'Craig';
     knex('game_state').insert({
       id: goofspiel_gamecount,
       players:  JSON.stringify([player_1, "incoming two"]),
@@ -194,15 +128,24 @@ app.get("/join/goofspiel", (req, res) => {
       player_scores: JSON.stringify([0, 0]),
       neutral_deck: JSON.stringify([1,2,3,4,5,6,7,8,9,10,11,12,13]),
       status: 'active'}).then();
-    turn[goofspiel_gamecount] = {};
+    turn[goofspiel_gamecount] = {
+        user_1 : player_1,
+        user_1_card: 0,
+        user_2 : '',
+        user_2_card : 0,
+        user_1_submit : "no",
+        user_2_submit : "no",
+        neutral_card : 0
+      };
     game_waiting_goofspiel = goofspiel_gamecount;
-    res.redirect("http://localhost:8080/game/"+goofspiel_gamecount);
+    // res.redirect("/game/"+game_waiting_goofspiel);
+    res.redirect("/game/"+goofspiel_gamecount + "/" + player_1);
   } else {
-    req.session.user = 'Brian';
+    var player_2 = 'Brian';
+    turn[goofspiel_gamecount].user_2 = player_2;
     knex.select('players').where({id: goofspiel_gamecount}).from('game_state')
     .then(function(results) {
       var player_1 = results[0].players;
-      var player_2 = req.session.user;
       var array = JSON.parse(results[0].players);
       knex('game_state')
         .update({players: JSON.stringify([array[0], player_2])})
@@ -211,18 +154,22 @@ app.get("/join/goofspiel", (req, res) => {
            goofspiel_gamecount++;
          })
     });
-    res.redirect("/game/"+game_waiting_goofspiel);
+    // res.redirect("/game/"+game_waiting_goofspiel);
+    res.redirect("/game/"+game_waiting_goofspiel + "/" + player_2);
     game_waiting_goofspiel = 0;
   }
 });
 
 //sends game match id to client
-app.get("/game/:id", (req, res) => {
-  res.render("game", {goofspiel_gamecount});
+app.get("/game/:id/:user", (req, res) => {
+ let vars = {  gameid: goofspiel_gamecount,
+               userid: req.params.user
+               }
+ res.render("game", vars);
 });
 
 //checks if both players have joined the game
-app.get("/game/:id/waiting", (req, res) => {
+app.get("/game/:id/waiting/:user", (req, res) => {
   knex('game_state')
     .select('players')
     .where({id: req.params.id})
@@ -237,13 +184,16 @@ app.get("/game/:id/waiting", (req, res) => {
 });
 
 //sends initial game setup data
-app.get("/game/:id/start", (req, res) => {
+app.get("/game/:id/start/:user", (req, res) => {
+
   knex.select('neutral_deck').where({id: req.params.id}).from('game_state')
     .then(function(results) {
       var deck = JSON.parse(results[0].neutral_deck);
-      var pick = Math.floor(Math.random() * deck.length);
-      var draw = deck[pick];
-      deck.splice(pick,1);
+      if (turn[req.params.id].neutral_card === 0){
+        var pick = Math.floor(Math.random() * deck.length);
+        turn[req.params.id].neutral_card = deck[pick];
+        deck.splice(pick,1);
+      }
       knex.update({neutral_deck: JSON.stringify(deck)})
       .where({id: req.params.id})
       .from('game_state')
@@ -258,13 +208,13 @@ app.get("/game/:id/start", (req, res) => {
         .where({id: req.params.id})
         .then(function(results){
           var players = JSON.parse(results[0].players);
-          if (players[0] = req.session.user){
-          data.hand = (JSON.parse(results[0].player_1_hand));
-          } else if (players[1] = req.session.user){
-          data.hand = (JSON.parse(results[0].player_2_hand));
+          if (players[0] = req.params.user){
+            data.hand = (JSON.parse(results[0].player_1_hand));
+          } else if (players[1] = req.params.user){
+            data.hand = (JSON.parse(results[0].player_2_hand));
           }
           data.scores = (JSON.parse(results[0].player_scores));
-          data.neutral = draw;
+          data.neutral = turn[req.params.id].neutral_card;
           res.send(data);
         });
       });
@@ -272,58 +222,99 @@ app.get("/game/:id/start", (req, res) => {
 })
 
 //handles turn rollover
-app.get("/game/:id/update", (req, res) => {
-  //Turn ready to end
-  var game_id = req.params.id
-//Turn ready to end, do game logic
-  if (turn[game_id].user_2_card && turn[game_id].user_1_card){
+app.get("/game/:id/update/:user", (req, res) => {
+    //Turn ready to end
+  var game_id = req.params.id;
+  var user = req.params.user;
+    //Turn ready to end, do game logic
+  if (turn[game_id].user_1_submit === "yes" && turn[game_id].user_2_submit === "yes"){
+    //Matches users to database ordering, then calculate winner
     knex.select('players').where({id: game_id}).from('game_state')
     .then(function(results) {
-      var orderedPlayers = JSON.parse(results[0].players);
-      if (orderedPlayers[0] === turn[game_id].user_2){
-        var temp_card = turn[game_id].user_1_card;
-        var temp_user = turn[game_id].user_1;
-        turn[game_id].user_1_card = turn[game_id].user_2_card;
-        turn[game_id].user_1 = turn[game_id].user_2;
-        turn[game_id].user_2_card = temp_card;
-        turn[game_id].user_2 = temp_user;
-      }
+      var winner;
+        if(turn[game_id].user_2_card > turn[game_id].user_1_card){
+          var winner = 2
+        }
+        else if(turn[game_id].user_1_card > turn[game_id].user_2_card){
+          var winner = 1;
+        }else if(turn[game_id].user_1_card === turn[game_id].user_2_card){
+          var winner = 0;
+        }
+      //Pulls old scores and updates them
+      knex.select('player_scores')
+        .where({id: game_id})
+        .from('game_state')
+        .then(function(results){
+          console.log(results);
+        var score = JSON.parse(results[0].player_scores);
+          if (winner === 1){
+            score[0] = score[0] + turn[game_id].neutral_card * 10;
+          } else if (winner === 2){
+            score[1] = score[1] + turn[game_id].neutral_card * 10;
+          } else {
+            score[1] = score[1] + (turn[game_id].neutral_card * 10)/2;
+            score[0] = score[0] + (turn[game_id].neutral_card * 10)/2;
+          }
+         //updates scores in database
+         knex('game_state')
+          .update({player_scores: JSON.stringify(score)})
+          .where({id: game_id})
+          .then(function(results) {
+          //picks new card from remaining neutral deck
+          knex.select('neutral_deck').where({id: req.params.id}).from('game_state')
+            .then(function(results) {
+            var deck = JSON.parse(results[0].neutral_deck);
+            if (turn[req.params.id].neutral_card === 0){
+              var pick = Math.floor(Math.random() * deck.length);
+              turn[req.params.id].neutral_card = deck[pick];
+              deck.splice(pick,1);
+            }
+            //updates database neutral deck
+            knex.update({neutral_deck: JSON.stringify(deck)})
+              .where({id: req.params.id})
+              .from('game_state')
+              .then(function(results){
+              let data = {
+                neutral : 0,
+                hand: [],
+                scores: []
+              };
+                //builds new gamestate for client and sends
+                knex('game_state')
+                .select()
+                .where({id: req.params.id})
+                .then(function(results){
+                var players = JSON.parse(results[0].players);
+                  if (players[0] === user){
+                    data.hand = (JSON.parse(results[0].player_1_hand));
+                  } else if (players[1] === user){
+                    data.hand = (JSON.parse(results[0].player_2_hand));
+                  }
+                  data.scores = (JSON.parse(results[0].player_scores));
+                  data.neutral = turn[req.params.id].neutral_card;
+                  res.send(data);
+
+                });
+              });
+            });
+          });
+      });
     });
-    var winner;
-    if(turn[game_id].user_2_card > turn[game_id].user_1_card){
-      var winner = 2
-    }
-    else if(turn[game_id].user_1_card > turn[game_id].user_2_card){
-      var winner = 1;
-    }else if(turn[game_id].user_1_card === turn[game_id].user_2_card)
-      var winner = 0;
-    }
-
-    var score = JSON.parse(pullScore(game_id));
-    if (winner === 1){
-      score[0] = score[0] + turn[game_id].neutral_card * 10;
-    } else if (winner === 2){
-      score[1] = score[1] + turn[game_id].neutral_card * 10;
-    } else {
-      score[1] = score[1] + (turn[game_id].neutral_card * 10)/2;
-      score[0] = score[0] + (turn[game_id].neutral_card * 10)/2;
-    }
-    setScore(game_id, JSON.stringify(score));
-
-    res.send(clientPackageBuilder(game_id, req.session.user, pullFromDeck()));
-
-  //check if opponent has played card
-  if(turn[game_id].user_2 === req.session.user && turn[game_id].user_1_card){
-    res.send('waiting');
   }
-  else if(turn[game_id].user_1 === req.session.user && turn[game_id].user_2_card){
-    res.send('waiting');
+  //check if opponent has played card
+  else if(turn[game_id].user_2 === user && turn[game_id].user_1_submit === "yes"){
+    res.send('waiting on you');
+  }
+  else if(turn[game_id].user_1 === user && turn[game_id].user_2_submit === "yes"){
+    res.send('waiting on you');
+  }else {
+    res.send('waiting on both');
   }
 });
 
 // Client sends card to be played
-app.post("/game/:id/update", (req, res) => {
-    turnAction(req.params.id, req.session.user, cardToNumber(req.body.rank));
+app.post("/game/:id/update/:user", (req, res) => {
+    turnAction(req.params.id, req.params.user, cardToNumber(req.body.rank));
 });
 
 app.listen(PORT, () => {
