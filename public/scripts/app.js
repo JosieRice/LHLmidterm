@@ -10,7 +10,7 @@ $(document).ready(function() {
 
   // finds selected card value in the DOM and
   // reduces it to A, J, Q, K, or a number
-  function findCardValue(cb) {
+  function findCardValue() {
     // includes value and suit
     var cardText = $(this).text().trim();
     // includes just value as string
@@ -103,11 +103,12 @@ $(document).ready(function() {
   }
 
   // flips over random neutral card in center for players to bid on
+  // hard coded to diamonds
   function flipNeutralCard (cardRank) {
     $('.upcard').empty();
-      $( `  <div class="card rank-${cardRank} spades">
+      $( `  <div class="card rank-${cardRank} diams">
         <span class="rank">${cardRank}</span>
-        <span class="suit">&spades;</span>
+        <span class="suit">&diams;</span>
       </div>` ).appendTo( ".upcard" );
   }
 
