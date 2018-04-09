@@ -2,7 +2,7 @@
 $black-cards-color: #000000;
 $red-cards-color: #FF1600;
 $card-table-green: #076324;
-$dark-accent-color: #C5C6A2;
+$dark-accent-color: #af5624;
 $light-accent-color: #EDEEE0;
 
 
@@ -45,6 +45,11 @@ footer {
   width:100%;
 }
 
+  // lines up title text with bottom of fixed header
+  h1.main-title {
+    margin-top: 38px;
+  }
+
 // body styling for lobby with nested styling
 body {
   background-color: $light-accent-color;
@@ -57,16 +62,12 @@ body {
     text-align: center;
   }
 
-  // lines up title text with bottom of fixed header
-  h1 .main-title {
-    margin-top: 38px;
-  }
-
   // styles header 2 in body
   h2 {
     color: $black-cards-color;
     font-family: 'Great Vibes', cursive;
     text-align: center;
+    margin-top: 15px;
   }
 
   // the border for the games selection in the lobby
@@ -74,6 +75,7 @@ body {
     border-radius: 16px 16px 16px 16px;
     border: 2px solid #000000;
     background-color: $card-table-green;
+    height: 60vh;
   }
 
   // the border for the leaderboard in the lobby
@@ -81,6 +83,7 @@ body {
     border-radius: 16px 16px 16px 16px;
     border: 2px solid #000000;
     background-color: $card-table-green;
+    height: 60vh;
   }
 
 }
@@ -170,4 +173,15 @@ body.game-board {
 .opponent-downcard-scored {
   grid-row: 1;
   grid-column: 2;
+}
+
+p {
+  color: $black-cards-color;
+  font-family: 'Great Vibes', cursive;
+  text-align: center;
+  font-size: 150%;
+}
+
+.playmebutton {
+  text-align: center;
 }

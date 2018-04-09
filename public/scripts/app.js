@@ -141,8 +141,8 @@ $(document).ready(function() {
     $( '.your-score' ).empty();
     $( '.opponents-score' ).empty();
 
-    $( `<p>Brian Score: ${data.scores[1]}</p>` ).appendTo( ".opponents-score" );
-    $( `<p>Craig Score: ${data.scores[0]}</p>` ).appendTo( '.your-score' );
+    $( `<p>Brian:<br> ${data.scores[1]}</p>` ).appendTo( ".opponents-score" );
+    $( `<p>Craig:<br> ${data.scores[0]}</p>` ).appendTo( '.your-score' );
   }
 
   // flips over random neutral card in center for players to bid on
@@ -208,88 +208,24 @@ $(document).ready(function() {
       });
     }
     stopOpponentCheckTimer();
-    startTurnCheckTimer();
   }
 
-
-
-
-
-  var turnIntervalId;
-
-  // start turn status check
-  function startTurnCheckTimer() {
-    turnIntervalId = setInterval(turnStatusCheck, 5000);
-  }
-
-  // stops turn status check
-  function stopTurnCheckTimer() {
-    clearInterval(turnIntervalId);
-  }
-
-  //checks if opponent has played card and user has not
-  //  if only opponent has played, turn toggle will set to "waiting"
-  //  if both players have played their card, database will return object
-  //  instead of waiting string.
-  //  route checks input and does proper actions based on input type
   function turnStatusCheck() {
-    if (turnToggle === 'waiting on both' || turnToggle === 'waiting on you') {
-      $.ajax({
-        url: `/game/${gameID}/update/${userID}`,
-        method: "GET",
-        success: function (data) {
-          console.log('WAITING ON BOTH', data);
+
+    console.log('start of turn status check');
+    $.ajax({
+      url: `/game/${gameID}/update/${userID}`,
+      method: "GET",
+      success: function (data) {
+        console.log('WAITING ON BOTH', data);
+        if (data.neutral === 0) {
+          return;
+        } else {
           updateBoard(data);
         }
-      });
-    }
+      }
+    });
   }
-
-
-
-  function turnNotification() {
-    $('.player-downcard').empty();
-    $( `  <div class="card">
-            <span class="rank"></span>
-            <span class="suit"></span>
-          </div>` ).appendTo( ".player-downcard" );
-
-  }
-
-
-  // function turnStatusCheck() {
-  //   if (turnToggle === "waiting on both" || turnToggle === "waiting on you") {
-  //     $.ajax({
-  //       url: `/game/${gameID}/update/${userID}`,
-  //       method: "GET",
-  //       success: (data) => { console.log("DATA ", data);
-
-  //   if (data === "waiting on you") {
-  //     console.log("IF JUST WAITING ON YOU");
-  //     //set waiting visual queue
-  //   }
-  //     else
-  //       if (data === "waiting on both") {
-  //         console.log("IF WAITING ON JUST BOTH");
-  //       }
-  //         else
-  //           if (data !== "waiting on you" || data !== "waiting on both") {
-  //             console.log("IF NOT WAITING FOR EITHER AND THE TURN IS READY TO", data);
-  //             updateBoard(data);
-  //             turnToggle = "waiting on both";
-  //           }
-  //         }
-  //       });
-  //     }
-  // }
-
-
-
-
-
-
-
-
 
   // houses all event handlers in a nice neat package
   function loadEventHanders() {
@@ -297,6 +233,7 @@ $(document).ready(function() {
     $( "#player-hand .card" ).on('click', findCardValue);
     // handler to remove hand cards
     $( "#player-hand .card" ).on('click', selectedCardDisappears);
+    $( ".stock" ).off().on('click', turnStatusCheck);
   }
 
   // turns off event handlers
