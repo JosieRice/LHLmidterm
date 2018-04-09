@@ -2,7 +2,7 @@
 $black-cards-color: #000000;
 $red-cards-color: #FF1600;
 $card-table-green: #076324;
-$dark-accent-color: #af5624;
+$dark-accent-color: #663300;
 $light-accent-color: #EDEEE0;
 
 
@@ -75,7 +75,7 @@ body {
     border-radius: 16px 16px 16px 16px;
     border: 2px solid #000000;
     background-color: $card-table-green;
-    height: 60vh;
+    height: 75vh;
   }
 
   // the border for the leaderboard in the lobby
@@ -83,7 +83,7 @@ body {
     border-radius: 16px 16px 16px 16px;
     border: 2px solid #000000;
     background-color: $card-table-green;
-    height: 60vh;
+    height: 75vh;
   }
 
 }
