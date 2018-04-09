@@ -23,13 +23,13 @@ $(document).ready(function() {
 
   // posts selected card to update game
   function postPlayedCard(cardRank) {
+    console.log("I'm POSTING ", cardRank);
     $.ajax({
       url: `/game/${gameID}/update/${userID}`,
       method: "POST",
       data: {rank:cardRank},
       // moves card in UI after it's sent
       complete: layCard(cardRank)
-      // success goes here
     });
   }
 
@@ -136,12 +136,11 @@ $(document).ready(function() {
 
   // adds scores to score board
   function tallyScore(data) {
-    // console.log('Hey handsome', data.scores[0])
     $( '.your-score' ).empty();
     $( '.opponents-score' ).empty();
 
-    $( `<p>Brian:<br> ${data.scores[1]}</p>` ).appendTo( ".opponents-score" );
-    $( `<p>Craig:<br> ${data.scores[0]}</p>` ).appendTo( '.your-score' );
+    $( `<p>Brian:<br> ${(data.scores[1] / 10)}</p>` ).appendTo( ".opponents-score" );
+    $( `<p>Craig:<br> ${(data.scores[0] / 10)}</p>` ).appendTo( '.your-score' );
   }
 
   // flips over random neutral card in center for players to bid on
@@ -196,30 +195,32 @@ $(document).ready(function() {
     clearInterval(nIntervId);
   }
 
+  //check if opponent present, if present sets opponent toggle to found,
+  //and skips route
   function checkForOpponent() {
-    //check if opponent present, if present sets opponent toggle to found,
-    //and skips route
     if (opponentToggle === "not found") {
       $.ajax({
-          url: `/game/${gameID}/waiting/${userID}`,
-          method: "GET",
-          success: (data) => { opponentToggle = data; }
+        url: `/game/${gameID}/waiting/${userID}`,
+        method: "GET",
+        success: (data) => { opponentToggle = data; }
       });
     }
     stopOpponentCheckTimer();
   }
 
+  // Clicking the neutral deck in the middle checks if opponent is done
+  // and tries to refresh page
   function turnStatusCheck() {
-
-    console.log('start of turn status check');
+    console.log('turnSTATUSCHECK');
     $.ajax({
       url: `/game/${gameID}/update/${userID}`,
       method: "GET",
-      success: function (data) {
-        console.log('WAITING ON BOTH', data);
+      success: (data) => {
         if (data.neutral === 0) {
+          console.log("ZERO DATA RECEIVED");
           return;
         } else {
+          console.log("WE GOT THE DATA... EVEN IF ITS WRONG");
           updateBoard(data);
         }
       }
