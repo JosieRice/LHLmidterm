@@ -231,7 +231,8 @@ app.get("/game/:id/start/:user", (req, res) => {
                     turn[req.params.id].user_2_submit = "no";
                     turn[req.params.id].user_1_turn_end = "no";
                     turn[req.params.id].user_2_turn_end = "no";
-                    turn[req.params.id].neutral_card = 0;
+                    // NEED A NETURAL CARD VALUE
+                    // turn[req.params.id].neutral_card = 0;
                   }
           res.send(data);
         });
@@ -262,9 +263,9 @@ app.get("/game/:id/start/:user", (req, res) => {
     player_scores: [],
     player_1_hand: [],
     player_2_hand: [],
-    // winner: 0,
+    winner: 0,
     // score: [],
-    // pick: 0
+    pick: 0
   };
 
 
@@ -312,14 +313,16 @@ var gameMath = function (gameDataFromServer, user, game_id) {
     // console.log('IN GAME MATH, GAMEDATAFROM SERVER', gameDataFromServer);
     findWinner(game_id, gameDataFromServer);
     addScore(game_id);
-    // pickCard(game_id);
-    // dataBuilder(game_id);
-    // turnreset(game_id);
-    // updateDatabase(game_id);
+    pickCard(game_id, user, data);
+    dataBuilder(game_id, data);
+    turnReset(game_id, user);
+    updateDatabase(game_id);
   }
   return data;
 };
 
+// checks who played the higher card and assigns 0 for tie, 1 for player 1, and
+// 2 for player 2.
 var findWinner = function (game_id, gameDataFromServer) {
   if (turn[game_id].user_2_card > turn[game_id].user_1_card) {
     data_fields.winner = 2;
@@ -332,49 +335,60 @@ var findWinner = function (game_id, gameDataFromServer) {
   }
 };
 
-// NOT SCORING ACTUAL CARD VALUE AND MIGHT BE MIXING UP PLAYERS, BUT WORKING
+// checks who won the last hand and adds the score of the neutral card to
+// the appropriate player
 var addScore = function (game_id) {
   if (data_fields.winner === 1) {
-    data_fields.player_scores[0] += data_fields.player_scores[0] + 2;
+    data_fields.player_scores[0] += (turn[game_id].neutral_card * 10);
   }
   if (data_fields.winner === 2) {
-    data_fields.player_scores[1] += data_fields.player_scores[1] + 2;
+    data_fields.player_scores[1] += (turn[game_id].neutral_card * 10);
   }
   if (data_fields.winner === 0) {
-   data_fields.player_scores[0] += data_fields.player_scores[0] + 1;
-   data_fields.player_scores[1] += data_fields.player_scores[1] + 1;
+   data_fields.player_scores[0] += ((turn[game_id].neutral_card * 10) / 2);
+   data_fields.player_scores[1] += ((turn[game_id].neutral_card * 10) / 2);
   }
 };
 
 
 
+var pickCard = function (game_id, user, data) {
+  console.log("IM IN PICK CARD FUNCTION");
+  console.log("GAME ID ", game_id);
+  console.log("TURN ", turn);
+  console.log("DATA_FIELDS ", data_fields);
+  console.log("USER ", user);
+  console.log("DATA ", data);
 
-
-
-
-var pickCard = function (game_id) {
   if (turn[game_id].neutral_card === 0) { //If statement to prevent generating two random card, (one for each user)
     data_fields.pick = Math.floor(Math.random() * data_fields.neutral_deck.length);
     turn[game_id].neutral_card = data_fields.neutral_deck[data_fields.pick];
     data_fields.neutral_deck.splice(data_fields.pick,1);
-      if (data_fields.deck.length === 0) {
-        turn[game_id].end_game_toggle = "yes";
-      }
-  } if (data_fields.players[0] === user) { //builds new gamestate for client and sends
+
+  // TO END GAME IF THERE"S NOT CARDS LEFT
+  // if (data_fields.neutral_deck.length === 0) {
+  //     //   turn[game_id].end_game_toggle = "yes";
+  //     // }
+
+  }
+  if (data_fields.players[0] === user) { //builds new gamestate for client and sends
     data.hand = data_fields.player_1_hand;
-  } else
-    if (data_fields.players[1] === user) {
-      data.hand = data_fields.player_2_hand;
-    }
+  }
+  if (data_fields.players[1] === user) {
+    data.hand = data_fields.player_2_hand;
+  }
 };
 
-var dataBuilder = function (game_id) {
+
+var dataBuilder = function (game_id, data) {
   data.scores = data_fields.player_scores;
   data.players = data_fields.players;
-  data.neutral = turn[game_id].neutral_card;
+  data.neutral = turn[game_id].neutral_card;   // need this to be a different card
+  // data.end = false;
+  console.log("IN DATABUILDER DATA ", data);
 };
 
-var turnReset = function (game_id) {
+var turnReset = function (game_id, user) {
   if (user === turn[game_id].user_1) { //resets turn variables
     turn[game_id].user_1_turn_end = "yes";
   } else
@@ -383,7 +397,7 @@ var turnReset = function (game_id) {
     } if (turn[game_id].user_2_turn_end === "yes" && turn[game_id].user_1_turn_end === "yes") {
       turn[game_id].user_1_card = 0;
       turn[game_id].user_2_card = 0;
-      turn[gane_id].user_1_submit = "no";
+      turn[game_id].user_1_submit = "no";
       turn[game_id].user_2_submit = "no";
       turn[game_id].user_1_turn_end = "no";
       turn[game_id].user_2_turn_end = "no";
@@ -391,7 +405,7 @@ var turnReset = function (game_id) {
     }
 };
 
-var updateDatabase = function () {
+var updateDatabase = function (game_id) {
   knex('game_state')
     .where({id: game_id})
     .update({neutral_deck: JSON.stringify(data_fields.neutral_deck),
