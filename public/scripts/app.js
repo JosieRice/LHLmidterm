@@ -8,7 +8,6 @@ $(document).ready(function() {
   var userID = gameIDElement.dataset.userid;
   // a way to identify if players have joined the game. I don't care for it.
   var opponentToggle = "not found";
-  var turnToggle = "waiting on both";
 
   // finds selected card value in the DOM and
   // reduces it to A, J, Q, K, or a number
@@ -242,8 +241,6 @@ $(document).ready(function() {
     $( "#player-hand .card" ).off('click', selectedCardDisappears);
   }
 
-  // Starts timer to start querying Database
-  // queryDatabase();
   // starts interval checks while waiting for opponent
   startOpponentCheckTimer();
   // Turns on all event handlers
