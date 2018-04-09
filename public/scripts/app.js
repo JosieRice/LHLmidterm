@@ -49,6 +49,7 @@ $(document).ready(function() {
             <span class="rank">${cardRank}</span>
             <span class="suit">&spades;</span>
           </div>` ).appendTo( ".player-downcard" );
+
   }
 
   // removes card from hand that was selected
@@ -56,15 +57,15 @@ $(document).ready(function() {
     $(this).parent().empty();
   }
 
-  // moves cards to scored area - still needs to be changes to take two arguments
-  function moveToScoredArea(owner, cardRank) {
-    // code to populate a card in the scored area
-    $('.player-downcard').empty();
-    $( `  <div class="card rank-${cardRank} spades">
-            <span class="rank">${cardRank}</span>
-            <span class="suit">&spades;</span>
-          </div>` ).appendTo( ".player-downcard" );
-  }
+  // // moves cards to scored area - still needs to be changes to take two arguments
+  // function moveToScoredArea(cardRank) {
+  //   // code to populate a card in the scored area
+  //   $(`.player-downcard`).empty();
+  //   $( `  <div class="card rank-${cardRank} spades">
+  //           <span class="rank">${cardRank}</span>
+  //           <span class="suit">&spades;</span>
+  //         </div>` ).appendTo( ".player-downcard" );
+  // }
 
   // runs the function to parse card data, which runs hand and board update functions
   function updateBoard(data){
@@ -74,12 +75,18 @@ $(document).ready(function() {
     clearOpponentsHand();
     // clears neutral deck 'stock' so it can be repopulated from the database
     clearNeutralDeck();
-
+    // clears played cards areas
+    clearPlayedCards();
     // populates scores
+    tallyScore(data);
+    // clears scored cards
+    clearScoredCards();
+    // moves scored cards to the left
+    // moveToScoredArea()
 
 
-    console.log('data ', data);
-    console.log('')
+    console.log('DATA ', data);
+    // console.log('CARDRANK ', cardRank);
 
 
     // loops over hand array from database to populate both hands
@@ -95,12 +102,29 @@ $(document).ready(function() {
       // updates neutral deck size
       updateNeutralDeck();
     }
+
+
+
+
+
+
+
     // flips over a neutral card
     flipNeutralCard(parseCardValues(data.neutral));
     // removeOneNeutralDeckCard();
     // reloads event handers on fresh player hand
     loadEventHanders();
   }
+
+
+
+  // clear played cards
+  function clearPlayedCards() {
+    $( '.upcard' ).empty();
+    $( '.player-downcard' ).empty();
+    $( '.opponent-downcard' ).empty();
+  }
+
 
 
   // moves played cards over to score
@@ -118,6 +142,13 @@ $(document).ready(function() {
   }
 
 
+  // clears scored cards
+  function clearScoredCards() {
+    $( '.upcard-scored' ).empty();
+    $( '.player-downcard-scored' ).empty();
+    $( '.opponent-downcard-scored' ).empty();
+  }
+
           //   <!-- after round is scored, upturned card to bid on blank right now-->
           // <div class="upcard-scored">
           // </div>
@@ -129,6 +160,27 @@ $(document).ready(function() {
           // <!-- after round is scored, opponents chosen card for bidding -->
           // <div class="opponent-downcard-scored">
           // </div>
+
+
+
+
+
+
+
+
+
+
+
+
+  // adds scores to score board
+  function tallyScore(data) {
+    // console.log('Hey handsome', data.scores[0])
+    $( '.your-score' ).empty();
+    $( '.opponents-score' ).empty();
+
+    $( `<p>Brian Score: ${data.scores[1]}</p>` ).appendTo( ".opponents-score" );
+    $( `<p>Craig Score: ${data.scores[0]}</p>` ).appendTo( '.your-score' );
+  }
 
 
 
@@ -216,8 +268,21 @@ $(document).ready(function() {
   // Turns on all event handlers
   loadEventHanders();
 
-  // 5 second repeating request game data from server
-  setInterval(function() {
+
+// sets an interval ID so that we can stop the repeated database queries
+var nIntervId;
+
+// turns turn status check on timer
+function queryDatabase() {
+  nIntervId = setInterval(turnStatusCheck, 5000);
+}
+
+// stops turn status check
+function stopQueryDatabase() {
+  clearInterval(nIntervId);
+}
+
+function turnStatusCheck() {
     //check if opponent present, if present sets opponent toggle to found,
     //and skips route
       if (opponentToggle === "not found"){
@@ -251,9 +316,71 @@ $(document).ready(function() {
         }
         });
       }
-  }, 5000);
 
-});
+}
+
+
+
+
+queryDatabase();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  });
+
+  // // 5 second repeating request game data from server
+  // setInterval(function() {
+  //   //check if opponent present, if present sets opponent toggle to found,
+  //   //and skips route
+  //     if (opponentToggle === "not found"){
+  //       $.ajax({
+  //       url: `/game/${gameID}/waiting/${userID}`,
+  //       method: "GET",
+  //       success: (data) => { opponentToggle = data; }
+  //       });
+  //     }
+  //     //checks if opponent has played card and user has not
+  //     //  if only opponent has played, turn toggle will set to "waiting"
+  //     //  if both players have played their card, database will return object
+  //     //  instead of waiting string.
+  //     //  route checks input and does proper actions based on input type
+  //     else if (turnToggle === "waiting on both" || turnToggle === "waiting on you"){
+  //       $.ajax({
+  //       url: `/game/${gameID}/update/${userID}`,
+  //       method: "GET",
+  //       success: (data) => { console.log("IF WAITING ON BOTH OR WAITING ON YOU");
+  //         if (data === "waiting on you"){
+  //           console.log("IF JUST WAITING ON YOU");
+  //           //set waiting visual queue
+  //         } else if (data === "waiting on both"){
+  //           console.log("IF WAITING ON JUST BOTH");
+  //         } else if (data !== "waiting on you" || data !== "waiting on both"){
+  //           // updateBoard(data);
+  //           console.log("IF NOT WAITING FOR EITHER AND THE TURN IS READY TO", data);
+  //           updateBoard(data);
+  //           turnToggle = "waiting on both";
+  //         }
+  //       }
+  //       });
+  //     }
+  // }, 5000);
+
+
 
     // $( "#player-hand" ).off( "click", "**" );
 
