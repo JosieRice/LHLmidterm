@@ -241,224 +241,206 @@ app.get("/game/:id/start/:user", (req, res) => {
 
 //handles turn rollover
 app.get("/game/:id/update/:user", (req, res) => {
-    //Turn ready to end
+
+  let data_fields = {
+    players: [],
+    neutral_deck: [],
+    player_scores: [],
+    winner: 0,
+    score: [],
+    pick: 0
+
+  }
+  let data = {
+    neutral : 0,
+    hand: [],
+    scores: [],
+    end: false,
+    players: []
+  };
   var game_id = req.params.id;
   var user = req.params.user;
-    //Turn ready to end, do game logic
-  if (turn[game_id].user_1_submit === "yes" && turn[game_id].user_2_submit === "yes" && turn[game_id].end_game_toggle === "no"){
-    //Matches users to database ordering, then calculate winner
-    console.log("I AM AT STEP 1");
-    knex.select('players').where({id: game_id}).from('game_state')
-    .then(function(results) {
- console.log("I AM AT STEP 2");
-      var winner;
-        if(turn[game_id].user_2_card > turn[game_id].user_1_card){
-          var winner = 2
-        }
-        else if(turn[game_id].user_1_card > turn[game_id].user_2_card){
-          var winner = 1;
-        }else if(turn[game_id].user_1_card === turn[game_id].user_2_card){
-          var winner = 0;
-        }
+    knex.select().where({id: game_id}).from('game_state')
+    .then(function(results){
+      data_fields.players = JSON.parse(results[0].players);
+      data_fields.neutral_deck = JSON.parse(results[0].neutral_deck);
+      data_fields.player_scores = JSON.parse(results[0].player_scores);
+      data_fields.player_1_hand = JSON.parse(results[0].player_1_hand);
+      data_fields.player_2_hand = JSON.parse(results[0].player_2_hand);
+      console.log(data_fields);
 
-      //Pulls old scores and updates them
-      knex.select('player_scores')
-        .where({id: game_id})
-        .from('game_state')
-        .then(function(results){
-           console.log("I AM AT STEP 3");
-        var score = JSON.parse(results[0].player_scores);
-        console.log("neutral_card", turn[req.params.id].neutral_card);
-        if (turn[game_id].score_toggle === "no"){
-          console.log("only craigs see's this");
-          if (winner === 1){
-            score[0] = score[0] + turn[game_id].neutral_card * 10;
-          } else if (winner === 2){
-            score[1] = score[1] + turn[game_id].neutral_card * 10;
-          } else {
-            score[1] = score[1] + (turn[game_id].neutral_card * 10)/2;
-            score[0] = score[0] + (turn[game_id].neutral_card * 10)/2;
-          }
+      if (turn[game_id].user_1_submit === "yes" && turn[game_id].user_2_submit === "yes" && turn[game_id].end_game_toggle === "no"){
+
+      if(turn[game_id].user_2_card > turn[game_id].user_1_card){
+        data_fields.winner = 2
+      }
+        else if(turn[game_id].user_1_card > turn[game_id].user_2_card){
+          data_fields.winner = 1;
+        }else if(turn[game_id].user_1_card === turn[game_id].user_2_card){
+          data_fields.winner = 0;
+      }
+      console.log("winner: ", data_fields.winner);
+
+      if (turn[game_id].score_toggle === "no"){
+        if (data_fields.winner === 1){
+          data_fields.player_scores[0] = data_fields.player_scores[0] + turn[game_id].neutral_card * 10;
+        } else if (data_fields.winner === 2){
+          data_fields.player_scores[1] = data_fields.player_scores[1] + turn[game_id].neutral_card * 10;
+        } else {
+          data_fields.player_scores[1] = data_fields.player_scores[1] + (turn[game_id].neutral_card * 10)/2;
+          data_fields.player_scores[0] = data_fields.player_scores[0] + (turn[game_id].neutral_card * 10)/2;
         }
-         //updates scores in database
-         knex('game_state')
-          .update({player_scores: JSON.stringify(score)})
-          .where({id: game_id})
-          .then(function(results) {
-             console.log("I AM AT STEP 4");
-          //picks new card from remaining neutral deck
-          knex.select('neutral_deck').where({id: req.params.id}).from('game_state')
-            .then(function(results) {
-               console.log("I AM AT STEP 5");
-            var deck = JSON.parse(results[0].neutral_deck);
+      }
+
             //If statement to prevent generating two random card, (one for each user)
-            if (turn[req.params.id].neutral_card === 0){
-              console.log("I AM CHANGING THE CARD");
-              var pick = Math.floor(Math.random() * deck.length);
-              turn[req.params.id].neutral_card = deck[pick];
-              deck.splice(pick,1);
-              //checks for last turn
-              if (deck.length === 0){
-                turn[req.params.id].end_game_toggle = "yes";
-              }
-            }
-            //updates database neutral deck
-            knex.update({neutral_deck: JSON.stringify(deck)})
-              .where({id: req.params.id})
-              .from('game_state')
-              .then(function(results){
-              let data = {
-                neutral : 0,
-                hand: [],
-                scores: [],
-                end: false,
-                players: []
-              };
-                //builds new gamestate for client and sends
-                knex('game_state')
-                .select()
-                .where({id: req.params.id})
-                .then(function(results){
-                var players = JSON.parse(results[0].players);
-                  if (players[0] === user){
-                    data.hand = (JSON.parse(results[0].player_1_hand));
-                  } else if (players[1] === user){
-                    data.hand = (JSON.parse(results[0].player_2_hand));
-                  }
-                  data.scores = (JSON.parse(results[0].player_scores));
-                  data.players = (JSON.parse(results[0].players));
-                  data.neutral = turn[req.params.id].neutral_card;
-                  //resets turn variables
-                  if (user === turn[req.params.id].user_1){
-                    turn[req.params.id].user_1_turn_end = "yes"
-                  } else if (user === turn[req.params.id].user_2){
-                    turn[req.params.id].user_2_turn_end = "yes"
-                  }
-                  if (turn[req.params.id].user_2_turn_end === "yes" && turn[req.params.id].user_1_turn_end === "yes"){
-                    console.log("RESETTING TURN");
-                    turn[req.params.id].user_1_card = 0;
-                    turn[req.params.id].user_2_card = 0;
-                    turn[req.params.id].user_1_submit = "no";
-                    turn[req.params.id].user_2_submit = "no";
-                    turn[req.params.id].user_1_turn_end = "no";
-                    turn[req.params.id].user_2_turn_end = "no";
-                    turn[req.params.id].neutral_card = 0;
-                     console.log(turn[req.params.id].neutral_card);
-                    if (turn[game_id].score_toggle === "yes"){
-                      console.log("toggle check");
-                      turn[game_id].score_toggle = "no";
-                    } else {
-                      turn[game_id].score_toggle = "yes";
-                    }
-                  }
-                  res.send(data);
-                });
-              });
-            });
-          });
-      });
-    });
-  }
+      if (turn[req.params.id].neutral_card === 0){
+        data_fields.pick = Math.floor(Math.random() * data_fields.neutral_deck.length);
+        turn[req.params.id].neutral_card = data_fields.neutral_deck[data_fields.pick];
+        data_fields.neutral_deck.splice(data_fields.pick,1);
+        if (data_fields.deck.length === 0){
+          turn[req.params.id].end_game_toggle = "yes";
+        }
+      }
+
+
+          //builds new gamestate for client and sends
+      if (data_fields.players[0] === user){
+        data.hand = data_fields.player_1_hand;
+      } else if (data_fields.players[1] === user){
+        data.hand = data_fields.player_2_hand;
+      }
+        data.scores = data_fields.player_scores;
+        data.players = data_fields.players;
+        data.neutral = turn[req.params.id].neutral_card;
+
+          //resets turn variables
+      if (user === turn[req.params.id].user_1){
+        turn[req.params.id].user_1_turn_end = "yes"
+      } else if (user === turn[req.params.id].user_2){
+        turn[req.params.id].user_2_turn_end = "yes"
+      }
+      if (turn[req.params.id].user_2_turn_end === "yes" && turn[req.params.id].user_1_turn_end === "yes"){
+        turn[req.params.id].user_1_card = 0;
+        turn[req.params.id].user_2_card = 0;
+        turn[req.params.id].user_1_submit = "no";
+        turn[req.params.id].user_2_submit = "no";
+        turn[req.params.id].user_1_turn_end = "no";
+        turn[req.params.id].user_2_turn_end = "no";
+        turn[req.params.id].neutral_card = 0;
+      }
+
+      knex('game_state')
+        .update({neutral_deck: JSON.stringify(data_fields.neutral_deck),
+                   player_scores: JSON.stringify(data_fields.player_scores),
+                   player_1_hand: JSON.stringify(data_fields.player_1_hand),
+                   player_2_hand: JSON.stringify(data_fields.player_2_hand)})
+          .where({id: game_id})
+          .then()
+          console.log("Data:", data)
+        res.send(data);
+      }
+
 
   //handles game end. same as turnroll over,
   //but with no new card drawn from neutral deck
   //also sends end turn flag to make the client handle data properly for end game
-  else if (turn[game_id].user_1_submit === "yes" && turn[game_id].user_2_submit === "yes" && turn[game_id].end_game_toggle === "yes"){
-    //Matches users to database ordering, then calculate winner
-    console.log("ishould not be here");
-    knex.select('players').where({id: game_id}).from('game_state')
-    .then(function(results) {
-      if (turn[game_id].score_toggle === "no"){
-        var winner;
-        if(turn[game_id].user_2_card > turn[game_id].user_1_card){
-          var winner = 2
-        }
-        else if(turn[game_id].user_1_card > turn[game_id].user_2_card){
-          var winner = 1;
-        }else if(turn[game_id].user_1_card === turn[game_id].user_2_card){
-          var winner = 0;
-        }
-      }
-      knex.select('player_scores')
-        .where({id: game_id})
-        .from('game_state')
-        .then(function(results){
-          console.log(results);
-        var score = JSON.parse(results[0].player_scores);
-        if (turn[game_id].score_toggle === "no"){
-          if (winner === 1){
-            score[0] = score[0] + turn[game_id].neutral_card * 10;
-          } else if (winner === 2){
-            score[1] = score[1] + turn[game_id].neutral_card * 10;
-          } else {
-            score[1] = score[1] + (turn[game_id].neutral_card * 10)/2;
-            score[0] = score[0] + (turn[game_id].neutral_card * 10)/2;
-          }
-          turn[game_id].score_toggle = "yes";
-        }
-         //updates scores in database
-         knex('game_state')
-          .update({player_scores: JSON.stringify(score)})
-          .where({id: game_id})
-          .then(function(results) {
-            //updates database neutral deck
-            knex.update({neutral_deck: JSON.stringify(deck)})
-              .where({id: req.params.id})
-              .from('game_state')
-              .then(function(results){
-              let data = {
-                neutral : 0,
-                hand: [],
-                scores: [],
-                end: true
-              };
-                //builds new gamestate for client and sends
-                knex('game_state')
-                .select()
-                .where({id: req.params.id})
-                .then(function(results){
-                var players = JSON.parse(results[0].players);
-                  if (players[0] === user){
-                    data.hand = (JSON.parse(results[0].player_1_hand));
-                  } else if (players[1] === user){
-                    data.hand = (JSON.parse(results[0].player_2_hand));
-                  }
-                  data.scores = (JSON.parse(results[0].player_scores));
-                  data.neutral = turn[req.params.id].neutral_card;
-                  //resets turn variables
-                  if (user === turn[req.params.id].user_1){
-                    turn[req.params.id].user_1_turn_end = "yes"
-                  } else if (user === turn[req.params.id].user_2){
-                    turn[req.params.id].user_2_turn_end = "yes"
-                  }
-                  if (turn[req.params.id].user_2_turn_end === "yes" && turn[req.params.id].user_1_turn_end === "yes"){
-                    turn[req.params.id].user_1_card = 0;
-                    turn[req.params.id].user_2_card = 0;
-                    turn[req.params.id].user_1_submit = "no";
-                    turn[req.params.id].user_2_submit = "no";
-                    turn[req.params.id].user_1_turn_end = "no";
-                    turn[req.params.id].user_2_turn_end = "no";
-                    if (turn[game_id].score_toggle === "yes"){
-                      turn[game_id].score_toggle = "no";
-                    }
-                  }
-                  res.send(data);
-                });
-              });
-          });
-      });
-    });
-  }
+  // else if (turn[game_id].user_1_submit === "yes" && turn[game_id].user_2_submit === "yes" && turn[game_id].end_game_toggle === "yes"){
+  //   //Matches users to database ordering, then calculate winner
+  //   console.log("ishould not be here");
+  //   knex.select('players').where({id: game_id}).from('game_state')
+  //   .then(function(results) {
+  //     if (turn[game_id].score_toggle === "no"){
+  //       var winner;
+  //       if(turn[game_id].user_2_card > turn[game_id].user_1_card){
+  //         var winner = 2
+  //       }
+  //       else if(turn[game_id].user_1_card > turn[game_id].user_2_card){
+  //         var winner = 1;
+  //       }else if(turn[game_id].user_1_card === turn[game_id].user_2_card){
+  //         var winner = 0;
+  //       }
+  //     }
+  //     knex.select('player_scores')
+  //       .where({id: game_id})
+  //       .from('game_state')
+  //       .then(function(results){
+  //         console.log(results);
+  //       var score = JSON.parse(results[0].player_scores);
+  //       if (turn[game_id].score_toggle === "no"){
+  //         if (winner === 1){
+  //           score[0] = score[0] + turn[game_id].neutral_card * 10;
+  //         } else if (winner === 2){
+  //           score[1] = score[1] + turn[game_id].neutral_card * 10;
+  //         } else {
+  //           score[1] = score[1] + (turn[game_id].neutral_card * 10)/2;
+  //           score[0] = score[0] + (turn[game_id].neutral_card * 10)/2;
+  //         }
+  //         turn[game_id].score_toggle = "yes";
+  //       }
+  //        //updates scores in database
+  //        knex('game_state')
+  //         .update({player_scores: JSON.stringify(score)})
+  //         .where({id: game_id})
+  //         .then(function(results) {
+  //           //updates database neutral deck
+  //           knex.update({neutral_deck: JSON.stringify(deck)})
+  //             .where({id: req.params.id})
+  //             .from('game_state')
+  //             .then(function(results){
+  //             let data = {
+  //               neutral : 0,
+  //               hand: [],
+  //               scores: [],
+  //               end: true
+  //             };
+  //               //builds new gamestate for client and sends
+  //               knex('game_state')
+  //               .select()
+  //               .where({id: req.params.id})
+  //               .then(function(results){
+  //               var players = JSON.parse(results[0].players);
+  //                 if (players[0] === user){
+  //                   data.hand = (JSON.parse(results[0].player_1_hand));
+  //                 } else if (players[1] === user){
+  //                   data.hand = (JSON.parse(results[0].player_2_hand));
+  //                 }
+  //                 data.scores = (JSON.parse(results[0].player_scores));
+  //                 data.neutral = turn[req.params.id].neutral_card;
+  //                 //resets turn variables
+  //                 if (user === turn[req.params.id].user_1){
+  //                   turn[req.params.id].user_1_turn_end = "yes"
+  //                 } else if (user === turn[req.params.id].user_2){
+  //                   turn[req.params.id].user_2_turn_end = "yes"
+  //                 }
+  //                 if (turn[req.params.id].user_2_turn_end === "yes" && turn[req.params.id].user_1_turn_end === "yes"){
+  //                   turn[req.params.id].user_1_card = 0;
+  //                   turn[req.params.id].user_2_card = 0;
+  //                   turn[req.params.id].user_1_submit = "no";
+  //                   turn[req.params.id].user_2_submit = "no";
+  //                   turn[req.params.id].user_1_turn_end = "no";
+  //                   turn[req.params.id].user_2_turn_end = "no";
+  //                   if (turn[game_id].score_toggle === "yes"){
+  //                     turn[game_id].score_toggle = "no";
+  //                   }
+  //                 }
+  //                 res.send(data);
+  //               });
+  //             });
+  //         });
+  //     });
+  //   });
+  // }
 
   //check if opponent has played card
   else if(turn[game_id].user_2 === user && turn[game_id].user_1_submit === "yes"){
-    res.send('waiting on you');
+    res.send(data);
   }
   else if(turn[game_id].user_1 === user && turn[game_id].user_2_submit === "yes"){
-    res.send('waiting on you');
+    res.send(data);
   }else {
-    res.send('waiting on both');
+    res.send(data);
   }
+  });
 });
 
 // Client sends card to be played
